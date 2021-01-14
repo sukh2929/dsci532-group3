@@ -1,13 +1,13 @@
-# Teamwork Contract For MDS 522 - Group 29
+# Teamwork Contract For MDS 532 - Group 3
 
 ## Description
-This document specifies guidelines agreed upon by members of Group 29 of the University of British Columbia Master of Data Science program to ensure an effective and efficient working environment for the DSCI 522 group project.
+This document specifies guidelines agreed upon by members of Group 3 of the University of British Columbia Master of Data Science program to ensure an effective and efficient working environment for the DSCI 532 group project.
 As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.github.io/policies/ the contract details logistics on how our group will work together, resolve issues, and expectations for individual tasks and overall project, to ensure a high quality experience and final project. Members included are:
 
-* Heidee
-* Tran Vu
+* Heidi Ye
+* Tran Doan Khanh Vu
 * Sukhdeep Kaur
-* Arash
+* Arash Shamsheddini
 
 ## Guidelines
 1. Communication
@@ -17,9 +17,8 @@ As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.githu
 
 ### Communication
 * Main communication will be done via GitHub issues and Slack channel. GitHub issues will be mainly used for information regarding project tasks and deadlines, specifically, any updates or changes in code or documentation. The Slack channel will be mainly used for all other project tasks and deadlines communication, including small suggestions and tips or links to help with certain tasks.
-* Emergency and last minute details communication will be done viz Whatsapp. This includes any emergent information regarding changing code or documentation, as well as emergent information about sudden schedule changes.
-* Agenda (member tasks and milestone checklist) and meeting minutes will be posted on Google Docs.
-* Everyone will meet during the Wednesday DSCI 522 lab session, and will coordinate to meet again at least once before the submission deadline. During this final meeting, all members must "okay" the project before subnmission. Meetings will begin with a runthrough of the Google Docs agenda to understand what has been done and what needs to be discussed and worked on.
+* Agenda (member tasks and milestone checklist) and meeting minutes will be posted in the issues created.
+* Everyone will meet during the Monday DSCI 532 lab session, and will coordinate to meet again at least once before the submission deadline(mostly on Friday). During this final meeting, all members must "okay" the project before subnmission. 
 
 ### Expectations
 * Everyone is expected to complete and be responsible for their specific task, as outlined during the group meeting.
@@ -35,4 +34,11 @@ As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.githu
 * Project tasks will be divided up equally among group members.
 * Everyone will help manage and complete all project tasks, however, there will be one member responsible for managing each task. 
 * Each member will be outlined specific responsibilities in which they are in charge of ensuring are completed and of high quality.
-* Everyone will help manage and review each milestone, however, each milestone submission will be specifically responsible by one member to triple-check and also submit onto GitHub and Canvas.
+* Everyone will help manage and review each milestone. However, each milestone submission on the canvas and github and review of the tasks in milstones are assigned to specific individual to double-check all tasks are completed as per instructions and quality.
+
+
+Milestone1:    submission assignee - Heidi Ye               Reviewer - Arash Shamsheddini
+Milestone2:    submission assignee - Sukhdeep Kaur          Reviewer - Tran Doan Khanh Vu
+Milestone3:    submission assignee - Tran Doan Khanh Vu     Reviewer - Sukhdeep Kaur
+Milestone4:    submission assignee - Arash Shamsheddini     Reviewer - Heidi Ye
+
