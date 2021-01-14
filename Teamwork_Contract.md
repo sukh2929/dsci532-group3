@@ -37,8 +37,8 @@ As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.githu
 * Everyone will help manage and review each milestone. However, each milestone submission on the canvas and github and review of the tasks in milstones are assigned to specific individual to double-check all tasks are completed as per instructions and quality.
 
 
-Milestone1:    submission assignee - Heidi Ye               Reviewer - Arash Shamsheddini
-Milestone2:    submission assignee - Sukhdeep Kaur          Reviewer - Tran Doan Khanh Vu
-Milestone3:    submission assignee - Tran Doan Khanh Vu     Reviewer - Sukhdeep Kaur
-Milestone4:    submission assignee - Arash Shamsheddini     Reviewer - Heidi Ye
+* Milestone1:    submission assignee - Heidi Ye               Reviewer - Arash Shamsheddini
+* Milestone2:    submission assignee - Sukhdeep Kaur          Reviewer - Tran Doan Khanh Vu
+* Milestone3:    submission assignee - Tran Doan Khanh Vu     Reviewer - Sukhdeep Kaur
+* Milestone4:    submission assignee - Arash Shamsheddini     Reviewer - Heidi Ye
 
