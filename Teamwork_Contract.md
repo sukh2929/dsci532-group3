@@ -37,7 +37,7 @@ As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.githu
 * Everyone will help manage and review each milestone. However, each milestone submission on the canvas and github and review of the tasks in milstones are assigned to specific individual to double-check all tasks are completed as per instructions and quality.
 
 
-|Milestone  | Milstone Submission Assignee| Reviewer|
+|Milestone  | Milestone Submission Assignee| Reviewer|
 |-----------|---------------------|-----------------|
 |Milestone 1| Heidi Ye| Arash Shamsheddini|
 |Milestone 2| Sukhdeep Kaur     | Tran Doan Khanh Vu   |
