@@ -1,3 +1,5 @@
+# Code of Conduct
+
 ## Introduction
 
 For DSCI 532 project, which is focused on “Designing a Dashboard for Interactive Data Visualization” we, members of group 3, are committed to forming a friendly and effective team environment where members are expected to learn, practice and accomplish project tasks while showing respect and courtesy to others. Aside from striving to fulfill academic goals, we hereby list a set of guidelines as ground rules that gravitate us towards working as an ethical, respectful and coherent team.
