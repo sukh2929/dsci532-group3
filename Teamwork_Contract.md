@@ -35,7 +35,7 @@ As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.githu
 * Everyone will help manage and complete all project tasks, however, there will be one member responsible for managing each task. 
 * Each member will be outlined specific responsibilities in which they are in charge of ensuring are completed and of high quality.
 * Everyone will help manage and review each milestone. However, each milestone submission on the canvas and github and review of the tasks in milstones are assigned to specific individual to double-check all tasks are completed as per instructions and quality.
-* Everyone will finish and submit work 2hrs before the final meeting before submission so that other people in the grouo can review it.
+* Everyone will finish and submit work 2hrs before the final meeting before submission so that other people in the group can review it.
 
 
 |Milestone  | Milestone Submission Assignee| Reviewer|
@@ -45,6 +45,14 @@ As well as agreeing to the UBC MDS policies outlined here: https://ubc-mds.githu
 |Milestone 3| Tran Doan Khanh Vu | Sukhdeep Kaur       |
 |Milestone 4| Arash Shamsheddini | Heidi Ye |
 
+* In addition, each person' tasks will be reviewed by a dedicated reviewer per milestone
+
+|Member 			| Week1 - Reviewer	|Week2 - Reviewer	|Week3 - Reviewer	|Week4 - Reviewer	|
+|-------------------|-------------------|-------------------|-------------------|-------------------|
+|Heidi Ye			| Arash Shamsheddini| Sukhdeep Kaur 	| Tran Doan Khanh Vu| Arash Shamsheddini|
+|Sukhdeep Kaur     	| Tran Doan Khanh Vu| Arash Shamsheddini| Heidi Ye 			| Tran Doan Khanh Vu|
+|Tran Doan Khanh Vu | Sukhdeep Kaur     | Heidi Ye			| Arash Shamsheddini|Sukhdeep Kaur      |
+|Arash Shamsheddini | Heidi Ye 			| Tran Doan Khanh Vu| Sukhdeep Kaur 	| Heidi Ye 			|
 
 ### Non availaibility hours
 * Arash Shamsheddini - wednesdays 6-8pm
