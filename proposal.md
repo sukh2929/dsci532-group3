@@ -28,3 +28,13 @@ Some research questions that could be answered by this dashboard are:
 Example User:
 
 Dr. Jerry Bing is an Epidemiologist. Every day he is tasked to report his suggestions to the Director-General, for the countries where the new cases are increasing sharply. So he needs a dashboard having clear and precise data representation from which he can analyze and make decisions about what other precautions or help can be provided to these countries. He can look into the summary of cases, recoveries and total deaths, and can also filter it using the Country and Region column. When he selects the Asia Pacific region (either by clicking on the region or selecting from the drop-down), it will break the data down into countries.
+
+## App Sketch
+
+The purpose of this app is to allow users to explore global Covid-19 data by time and region in an intuitive manner. The app sketch can be found below with additional details in the README.
+
+
+![Slide1_annotated.png](images/Slide1_annotated.png)
+
+
+![Slide2_annotated.png](images/Slide2_annotated.png)
