@@ -1,7 +1,7 @@
 ## Motivation and Purpose
 
 * Role: Data Analyst
-* Firm: WHO
+* Firm: The World Health Organization
 
 COVID-19 pandemic has affected the world drastically during the past year. The purpose of this dashboard, which contains COVID-19-related data, is to present a clear time/location-based picture of the world to better understand the statistics of this pandemic in terms of total cases and recoveries, deaths, and the patterns they follow. This is a very difficult time for all countries, especially for the under-developed and developing countries where an efficient healthcare system is not in place. This data can help us realize which countries are good at handling the pandemic, and which ones are not.
 
