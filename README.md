@@ -1,6 +1,7 @@
 # DSCI532-Group3
 
 Team Members: Sukhdeep Kaur, Arash Shamseddini Tran Doan Khanh Vu, Heidi Ye
+
 Dataset: COVID-19 Dataset [datalink](https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv)
 
 ## App Sketch
