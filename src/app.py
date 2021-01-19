@@ -132,7 +132,7 @@ date_range_selection = html.Label([
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '100vw', 'height': '100vh'}
+    style={'border-width': '0', 'width': '100%', 'height': '500px'}
 )
 
 map = dcc.Graph(
@@ -206,12 +206,12 @@ def filter_plot(country, continent, start_date, end_date):
     temp = plot_data.drop(['geometry', 'country_code', 'Date'], axis=1).groupby(['Country/Region']).agg(metrics).reset_index()
     plot_data = join_country_code_data(temp, country_code_data)
 
-    return plot(data), generate_map(plot_data)
+    return plot(data, 'Confirmed', 'the number of confirmed cases'), generate_map(plot_data)
 
-def plot(data):
-    chart = alt.Chart(data).mark_line().encode(
-        x=alt.X('month(Date):T'),
-        y='mean(Confirmed):Q')
+def plot(data, metric, metric_name):
+    chart = alt.Chart(data, title=f'How {metric_name} changes over time').mark_line().encode(
+        x=alt.X('month(Date):T', title="Month"),
+        y=alt.Y(f'mean({metric}):Q', title=f'Average of {metric_name}')) 
         
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
