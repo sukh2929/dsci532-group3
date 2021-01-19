@@ -1,13 +1,19 @@
+import os
+
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import altair as alt
-from vega_datasets import data
-import dash_bootstrap_components as dbc
+import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, date
+
+import json
+
+import plotly.express as px
 
 # As there is only 1 callback function allowed to map to each output,
 # we use this to check which value got updated and updating the plots
@@ -95,6 +101,32 @@ date_range_selection = html.Label([
         end_date=date(2020, 7, 27)
     )
 ])
+
+total_cases_linechart = html.Iframe(
+    id='line_totalcases',
+    style={'border-width': '0', 'width': '100vw', 'height': '100vh'}
+)
+
+shapefile = '.\\data\\ne_110m_admin_0_countries.shp'
+#Read shapefile using Geopandas
+
+gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
+#Rename columns.
+gdf.columns = ['country', 'country_code', 'geometry']
+
+merged = gdf.merge(countries_daywise_df, left_on = 'country', right_on = 'Country/Region')
+print(merged.head())
+
+fig = px.choropleth(merged, locations="country_code",
+                    color="Confirmed", # lifeExp is a column of gapminder
+                    hover_name="Country/Region", # column to add to hover information
+                    color_continuous_scale='Reds')
+
+map = dcc.Graph(
+    id='example-graph-1',
+    figure=fig
+)
+                                
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -113,12 +145,21 @@ app.layout = dbc.Container([
             dbc.Row([
                 dbc.Col([
                     date_range_selection
-                    ])]),],
+                    ])])],
             md=4),
-        dbc.Col(
-            html.Iframe(
-                id='line_totalcases',
-                style={'border-width': '0', 'width': '100vw', 'height': '100vh'}), md=8)])])
+        dbc.Col([
+            dbc.Row([
+                dbc.Col([
+                    map
+                ])
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    total_cases_linechart
+                ])
+            ])],
+            md=8)
+        ])])
 
 # Set up callbacks/backend
 @app.callback(
