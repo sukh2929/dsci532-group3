@@ -7,7 +7,14 @@ from vega_datasets import data
 import dash_bootstrap_components as dbc
 import pandas as pd
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
+
+# As there is only 1 callback function allowed to map to each output,
+# we use this to check which value got updated and updating the plots
+# accordingly
+def is_updated(key, new_value):
+    return ((prev_vals[key] is None and new_value is not None)
+        or (prev_vals[key] is not None and prev_vals[key] != new_value))
 
 def calculate_continent_daywise(countries_daywise_df):
     return calculate_continent_statistics(countries_daywise_df, 'Date')
@@ -34,7 +41,7 @@ alt.data_transformers.disable_max_rows()
 
 month_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-prev_vals = {'country': None, 'continent': None, 'date': None}
+prev_vals = {'country': None, 'continent': None, 'start_date': None, 'end_date': None}
 
 # print(Path.cwd())
 month_data = pd.read_csv(".\\data\\raw\\full_grouped.csv")
@@ -61,31 +68,53 @@ continents = ['All'] + list(set(df['WHO Region'].tolist()))
 countries.sort()
 continents.sort()
 
+continent_selection = html.Label([
+    'Continent Selection',
+    dcc.Dropdown(
+        id='continent_filter',
+        value='All',  # REQUIRED to show the plot on the first page load
+        options=[{'label': continent, 'value': continent} for continent in continents])
+])
+
+country_selection = html.Label([
+    'Country Selection',
+    dcc.Dropdown(
+        id='country_filter',
+        value='All',  # REQUIRED to show the plot on the first page load
+        options=[{'label': country, 'value': country} for country in countries])
+])
+
+date_range_selection = html.Label([
+    'Date range selection',
+    dcc.DatePickerRange(
+        id='date_selection_range',
+        min_date_allowed=date(2020, 1, 22),
+        max_date_allowed=date(2020, 7, 27),
+        initial_visible_month=date(2020, 1, 22),
+        start_date=date(2020, 1, 22),
+        end_date=date(2020, 7, 27)
+    )
+])
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+
 app.layout = dbc.Container([
     html.H1('COVID-19'),
     dbc.Row([
         dbc.Col([
             dbc.Row([
                 dbc.Col([
-                    html.Label([
-                        'Continent Selection',
-                        dcc.Dropdown(
-                            id='continent_filter',
-                            value='All',  # REQUIRED to show the plot on the first page load
-                            options=[{'label': continent, 'value': continent} for continent in continents])
-                    ])])]),
+                    continent_selection
+                    ])]),
             dbc.Row([
-                    dbc.Col([
-                        html.Label([
-                            'Country Selection',
-                            dcc.Dropdown(
-                                id='country_filter',
-                                value='All',  # REQUIRED to show the plot on the first page load
-                                options=[{'label': country, 'value': country} for country in countries])
-                        ])])
-                    ]),], md=4),
+                dbc.Col([
+                    country_selection
+                    ])]),
+            dbc.Row([
+                dbc.Col([
+                    date_range_selection
+                    ])]),],
+            md=4),
         dbc.Col(
             html.Iframe(
                 id='line_totalcases',
@@ -95,20 +124,31 @@ app.layout = dbc.Container([
 @app.callback(
     Output('line_totalcases', 'srcDoc'),
     Input('country_filter', 'value'),
-    Input('continent_filter', 'value'))
-def filter_plot(country, continent):
+    Input('continent_filter', 'value'),
+    Input('date_selection_range', 'start_date'),
+    Input('date_selection_range', 'end_date'))
+def filter_plot(country, continent, start_date, end_date):
     data = world_daywise_df
-    if prev_vals['continent'] == None or prev_vals['continent'] != continent: #continent is changed
+    if is_updated('continent', continent):
         prev_vals['continent'] = continent
         if continent != 'All':
             data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
         print('use continent')
-    elif prev_vals['country'] == None or prev_vals['country'] != country: #country is changed
+    elif is_updated('country', country):
         prev_vals['country'] = country
         if country != 'All':
             data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
         print('use country')
-    print(data[:5])
+    
+    if is_updated('start_date', start_date) or is_updated('end_date', end_date):
+        prev_vals['start_date'] = start_date
+        prev_vals['end_date'] = end_date
+
+        print(start_date, end_date)
+        data = data.query('Date >= @start_date & Date <= @end_date')
+        print(data[:5])
+
+    # print(data[:5])
     return plot(data)
 
 def plot(data):
