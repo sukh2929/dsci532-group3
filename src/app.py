@@ -8,7 +8,6 @@ from dash.dependencies import Input, Output
 import altair as alt
 import geopandas as gpd
 import pandas as pd
-from pathlib import Path
 from datetime import datetime, date
 
 import json
@@ -49,10 +48,9 @@ month_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "O
 
 prev_vals = {'country': None, 'continent': None, 'start_date': None, 'end_date': None}
 
-# print(Path.cwd())
-month_data = pd.read_csv(".\\data\\raw\\full_grouped.csv")
+month_data = pd.read_csv(os.path.join('data', 'raw', 'full_grouped.csv'))
 
-population_data = pd.read_csv(".\\data\\raw\\worldometer_data.csv",
+population_data = pd.read_csv(os.path.join('data', 'raw', 'worldometer_data.csv'),
     usecols = ['Country/Region','Population'])
 
 df = month_data.merge(population_data, how = 'left', on = 'Country/Region')
@@ -65,9 +63,6 @@ agg_steps['WHO Region'] = 'first' # to keep this column in aggregate
 countries_daywise_df = df
 continents_daywise_df = calculate_continent_daywise(countries_daywise_df)
 world_daywise_df = calculate_world_daywise(countries_daywise_df)
-
-# df = pd.concat([all_df, df], axis=0)
-# df = df.sort_values(by=['Month', 'Country/Region'], ascending=[month_order, True])
 
 countries = ['All'] + list(set(df['Country/Region'].tolist()))
 continents = ['All'] + list(set(df['WHO Region'].tolist()))
@@ -107,7 +102,7 @@ total_cases_linechart = html.Iframe(
     style={'border-width': '0', 'width': '100vw', 'height': '100vh'}
 )
 
-shapefile = '.\\data\\ne_110m_admin_0_countries.shp'
+shapefile = os.path.join('data', 'ne_110m_admin_0_countries.shp')
 #Read shapefile using Geopandas
 
 gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
@@ -118,8 +113,8 @@ merged = gdf.merge(countries_daywise_df, left_on = 'country', right_on = 'Countr
 print(merged.head())
 
 fig = px.choropleth(merged, locations="country_code",
-                    color="Confirmed", # lifeExp is a column of gapminder
-                    hover_name="Country/Region", # column to add to hover information
+                    color="Confirmed",
+                    hover_name="Country/Region",
                     color_continuous_scale='Reds')
 
 map = dcc.Graph(
