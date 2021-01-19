@@ -9,18 +9,8 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-def calculate_countries_monthwise(df):
-    countries_daywise_df = df.copy()
-    countries_daywise_df['Month'] = countries_daywise_df['Date'].apply(lambda x: datetime.strftime(datetime.strptime(x, "%Y-%m-%d"), "%b"))
-    countries_daywise_df = countries_daywise_df.drop(['Date'], axis=1).groupby(['Month', 'Country/Region', 'Population']).agg(agg_steps).reset_index()
-
-    return countries_daywise_df
-
 def calculate_continent_daywise(countries_daywise_df):
     return calculate_continent_statistics(countries_daywise_df, 'Date')
-
-def calculate_continent_monthwise(countries_monthwise_df):
-    return calculate_continent_statistics(countries_monthwise_df, 'Month')
 
 def calculate_continent_statistics(countries_df, group_col):
     all_df = countries_df.drop(['Country/Region', 'Population'], axis=1).groupby([group_col, 'WHO Region']).agg('mean').reset_index()
@@ -31,9 +21,6 @@ def calculate_continent_statistics(countries_df, group_col):
 
 def calculate_world_daywise(countries_daywise_df):
     return calculate_world_statistics(countries_daywise_df, 'Date')
-
-def calculate_world_monthwise(countries_monthwise_df):
-    return calculate_world_statistics(countries_monthwise_df, 'Month')
 
 def calculate_world_statistics(countries_df, group_col):
     world_df = countries_df.drop(['Country/Region', 'Population'], axis=1).groupby(group_col).agg('mean').reset_index()
@@ -63,13 +50,8 @@ agg_steps = {metric: 'mean' for metric in metrics}
 agg_steps['WHO Region'] = 'first' # to keep this column in aggregate
 
 countries_daywise_df = df
-countries_monthwise_df = calculate_countries_monthwise(df)
-
 continents_daywise_df = calculate_continent_daywise(countries_daywise_df)
-continents_monthwise_df = calculate_continent_monthwise(countries_monthwise_df)
-
 world_daywise_df = calculate_world_daywise(countries_daywise_df)
-world_monthwise_df = calculate_world_monthwise(countries_monthwise_df)
 
 # df = pd.concat([all_df, df], axis=0)
 # df = df.sort_values(by=['Month', 'Country/Region'], ascending=[month_order, True])
@@ -93,7 +75,8 @@ app.layout = dbc.Container([
                             id='continent_filter',
                             value='All',  # REQUIRED to show the plot on the first page load
                             options=[{'label': continent, 'value': continent} for continent in continents])
-                    ])]),
+                    ])])]),
+            dbc.Row([
                     dbc.Col([
                         html.Label([
                             'Country Selection',
@@ -101,7 +84,8 @@ app.layout = dbc.Container([
                                 id='country_filter',
                                 value='All',  # REQUIRED to show the plot on the first page load
                                 options=[{'label': country, 'value': country} for country in countries])
-                        ])])]),], md=4),
+                        ])])
+                    ]),], md=4),
         dbc.Col(
             html.Iframe(
                 id='line_totalcases',
@@ -113,27 +97,26 @@ app.layout = dbc.Container([
     Input('country_filter', 'value'),
     Input('continent_filter', 'value'))
 def filter_plot(country, continent):
+    data = world_daywise_df
     if prev_vals['continent'] == None or prev_vals['continent'] != continent: #continent is changed
         prev_vals['continent'] = continent
-        if continent == 'All':
-            data = world_monthwise_df
-        else:
-            data = continents_monthwise_df[continents_monthwise_df['WHO Region'] == continent]
+        if continent != 'All':
+            data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
+        print('use continent')
     elif prev_vals['country'] == None or prev_vals['country'] != country: #country is changed
         prev_vals['country'] = country
-        if country == 'All':
-            data = world_monthwise_df
-        else:
-            data = countries_monthwise_df[countries_monthwise_df['Country/Region'] == country]
-
+        if country != 'All':
+            data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
+        print('use country')
+    print(data[:5])
     return plot(data)
 
 def plot(data):
     chart = alt.Chart(data).mark_line().encode(
-        x=alt.X('Month:N', sort=month_order),
-        y='Confirmed:Q',
-        tooltip='Confirmed:Q')
-    return (chart + chart.mark_point()).interactive().to_html()
+        x=alt.X('month(Date):T'),
+        y='mean(Confirmed):Q')
+        
+    return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
 if __name__ == '__main__':
     app.run_server(debug=True)
