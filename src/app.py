@@ -25,47 +25,80 @@ def calculate_continent_daywise(countries_daywise_df):
     return calculate_continent_statistics(countries_daywise_df, 'Date')
 
 def calculate_continent_statistics(countries_df, group_col):
-    all_df = countries_df.drop(['Country/Region', 'Population'], axis=1).groupby([group_col, 'WHO Region']).agg('mean').reset_index()
-    all_df['Country/Region'] = 'All'
-    all_df['Population'] = population_data['Population'].sum()
+    continents_df = countries_df.drop(drop_cols, axis=1).groupby([group_col, 'WHO Region']).agg('mean').reset_index()
+    continents_df['Country/Region'] = 'All'
+    continents_df['Population'] = population_data['Population'].sum()
 
-    return all_df
+    return continents_df
 
 def calculate_world_daywise(countries_daywise_df):
     return calculate_world_statistics(countries_daywise_df, 'Date')
 
 def calculate_world_statistics(countries_df, group_col):
-    world_df = countries_df.drop(['Country/Region', 'Population'], axis=1).groupby(group_col).agg('mean').reset_index()
+    world_df = countries_df.drop(drop_cols, axis=1).groupby(group_col).agg('mean').reset_index()
     world_df['Country/Region'] = 'All'
     world_df['WHO Region'] = 'All'
     world_df['Population'] = population_data['Population'].sum()
 
     return world_df
-    
+
+def generate_map(data):
+    return px.choropleth(data, locations="country_code",
+                    color="Confirmed",
+                    hover_name="Country/Region",
+                    color_continuous_scale='Reds')
+
+def load_daily_data():
+    return pd.read_csv(os.path.join('data', 'raw', 'full_grouped.csv'))
+
+def load_population_data():
+    return  pd.read_csv(os.path.join('data', 'raw', 'worldometer_data.csv'),
+        usecols = ['Country/Region','Population'])
+
+def load_country_code_data():
+    shapefile = os.path.join('data', 'ne_110m_admin_0_countries.shp')
+
+    gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
+    gdf.columns = ['country', 'country_code', 'geometry']
+
+    return gdf
+
+def join_population_data(daily_data, population_data):
+    return daily_data.merge(population_data, how = 'left', on = 'Country/Region')
+
+def join_country_code_data(daily_data, country_code_data):
+    #new columns: country, country_code, geometry
+    return country_code_data.merge(daily_data, left_on = 'country', right_on = 'Country/Region').drop(['country'], axis=1)
+
 alt.data_transformers.disable_max_rows()
 
-month_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+prev_vals = {'country': None, 'continent': None}
+drop_cols = ['Country/Region', 'Population', 'country_code', 'geometry']
 
-prev_vals = {'country': None, 'continent': None, 'start_date': None, 'end_date': None}
+metrics = {
+    'Population': 'first',
+    'Confirmed': 'mean',
+    'Deaths': 'mean',
+    'Recovered': 'mean',
+    'Active': 'mean',
+    'New cases': 'mean',
+    'New deaths': 'mean',
+    'New recovered': 'mean',
+    'WHO Region': 'first'
+}
 
-month_data = pd.read_csv(os.path.join('data', 'raw', 'full_grouped.csv'))
+month_data = load_daily_data()
+population_data = load_population_data()
+country_code_data = load_country_code_data()
 
-population_data = pd.read_csv(os.path.join('data', 'raw', 'worldometer_data.csv'),
-    usecols = ['Country/Region','Population'])
+countries_daywise_df = join_population_data(month_data, population_data)
+countries_daywise_df = join_country_code_data(countries_daywise_df, country_code_data)
 
-df = month_data.merge(population_data, how = 'left', on = 'Country/Region')
-
-metrics = ['Confirmed',	'Deaths', 'Recovered', 'Active', 'New cases', 'New deaths', 'New recovered']
-
-agg_steps = {metric: 'mean' for metric in metrics}
-agg_steps['WHO Region'] = 'first' # to keep this column in aggregate
-
-countries_daywise_df = df
 continents_daywise_df = calculate_continent_daywise(countries_daywise_df)
 world_daywise_df = calculate_world_daywise(countries_daywise_df)
 
-countries = ['All'] + list(set(df['Country/Region'].tolist()))
-continents = ['All'] + list(set(df['WHO Region'].tolist()))
+countries = ['All'] + list(set(countries_daywise_df['Country/Region'].tolist()))
+continents = ['All'] + list(set(countries_daywise_df['WHO Region'].tolist()))
 countries.sort()
 continents.sort()
 
@@ -102,24 +135,9 @@ total_cases_linechart = html.Iframe(
     style={'border-width': '0', 'width': '100vw', 'height': '100vh'}
 )
 
-shapefile = os.path.join('data', 'ne_110m_admin_0_countries.shp')
-#Read shapefile using Geopandas
-
-gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
-#Rename columns.
-gdf.columns = ['country', 'country_code', 'geometry']
-
-merged = gdf.merge(countries_daywise_df, left_on = 'country', right_on = 'Country/Region')
-print(merged.head())
-
-fig = px.choropleth(merged, locations="country_code",
-                    color="Confirmed",
-                    hover_name="Country/Region",
-                    color_continuous_scale='Reds')
-
 map = dcc.Graph(
-    id='example-graph-1',
-    figure=fig
+    id='world_map',
+    figure=generate_map(countries_daywise_df)
 )
                                 
 # Setup app and layout/frontend
@@ -159,33 +177,36 @@ app.layout = dbc.Container([
 # Set up callbacks/backend
 @app.callback(
     Output('line_totalcases', 'srcDoc'),
+    Output('world_map', 'figure'),
     Input('country_filter', 'value'),
     Input('continent_filter', 'value'),
     Input('date_selection_range', 'start_date'),
     Input('date_selection_range', 'end_date'))
 def filter_plot(country, continent, start_date, end_date):
     data = world_daywise_df
+    plot_data = countries_daywise_df
+
     if is_updated('continent', continent):
         prev_vals['continent'] = continent
         if continent != 'All':
             data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
-        print('use continent')
+            plot_data = countries_daywise_df[countries_daywise_df['WHO Region'] == continent]
     elif is_updated('country', country):
         prev_vals['country'] = country
         if country != 'All':
             data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
-        print('use country')
+            plot_data = data
     
-    if is_updated('start_date', start_date) or is_updated('end_date', end_date):
-        prev_vals['start_date'] = start_date
-        prev_vals['end_date'] = end_date
+    data = data.query('Date >= @start_date & Date <= @end_date')
+    plot_data = plot_data.query('Date >= @start_date & Date <= @end_date')
 
-        print(start_date, end_date)
-        data = data.query('Date >= @start_date & Date <= @end_date')
-        print(data[:5])
+    print("Plot data shape is:", plot_data.shape)
 
-    # print(data[:5])
-    return plot(data)
+    # fix error when groupby geometry or put it in the aggregate column
+    temp = plot_data.drop(['geometry', 'country_code', 'Date'], axis=1).groupby(['Country/Region']).agg(metrics).reset_index()
+    plot_data = join_country_code_data(temp, country_code_data)
+
+    return plot(data), generate_map(plot_data)
 
 def plot(data):
     chart = alt.Chart(data).mark_line().encode(
