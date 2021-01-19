@@ -9,20 +9,41 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-print(Path.cwd())
+alt.data_transformers.disable_max_rows()
+# print(Path.cwd())
 month_data = pd.read_csv(".\\data\\raw\\full_grouped.csv")
 
 population_data = pd.read_csv(".\\data\\raw\\worldometer_data.csv",
-    usecols = ['Country/Region', 'Continent','Population', 'WHO Region', 'Tot Cases/1M pop', 'Deaths/1M pop'])
+    usecols = ['Country/Region','Population'])
 
-df = month_data.merge(population_data, how = 'left', on = 'Country/Region')
-df['Month'] = df['Date'].apply(lambda x: datetime.strftime(datetime.strptime(x, "%Y-%m-%d"), "%b"))
-print(df.columns)
-print(df.iloc[:3,])
+daywise_df = month_data.merge(population_data, how = 'left', on = 'Country/Region')
+daywise_df['Month'] = daywise_df['Date'].apply(lambda x: datetime.strftime(datetime.strptime(x, "%Y-%m-%d"), "%b"))
+
+metrics = ['Confirmed',	'Deaths', 'Recovered', 'Active', 'New cases', 'New deaths', 'New recovered']
+keep_cols = ['WHO Region']
+
+agg_steps = {metric: 'mean' for metric in metrics}
+for col in keep_cols:
+    agg_steps[col] = 'first'
+
+df = daywise_df.drop(['Date'], axis=1).groupby(['Month', 'Country/Region', 'Population']).agg(agg_steps).reset_index()
+
+for col in keep_cols:
+    del agg_steps[col]
+
+all_df = daywise_df.drop(['Country/Region', 'Population', 'Date'], axis=1).groupby(['Month']).agg(agg_steps).reset_index()
+all_df['Country/Region'] = 'All'
+all_df['WHO Region'] = 'All'
+all_df['Population'] = population_data['Population'].sum()
 
 month_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-countries = ['All'] + df['Country/Region'].tolist()
+df = pd.concat([all_df, df], axis=0)
+df = df.sort_values(by=['Month', 'Country/Region'], ascending=[month_order, True])
+
+countries = ['All'] + list(set(daywise_df['Country/Region'].tolist()))
+countries.sort()
+
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = dbc.Container([
@@ -43,11 +64,11 @@ app.layout = dbc.Container([
     Output('line_totalcases', 'srcDoc'),
     Input('country_filter', 'value'))
 def plot_altair(country):
-    data = df if country == 'All' else df[df['Country/Region'] == country]
-    alt.data_transformers.disable_max_rows()
+    data = df[df['Country/Region'] == country]
+
     chart = alt.Chart(data).mark_line().encode(
-        x='Month',
-        y='Confirmed',
+        x=alt.X('Month:N', sort=month_order),
+        y='Confirmed:Q',
         tooltip='Month').interactive()
     return chart.to_html()
 
