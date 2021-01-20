@@ -135,6 +135,16 @@ total_cases_linechart = html.Iframe(
     style={'border-width': '0', 'width': '100%', 'height': '500px'}
 )
 
+total_death_linechart = html.Iframe(
+    id='line_totaldeaths',
+    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+)
+
+total_recovered_linechart = html.Iframe(
+    id='line_totalrecovered',
+    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+)
+
 map = dcc.Graph(
     id='world_map',
     figure=generate_map(countries_daywise_df)
@@ -158,7 +168,8 @@ app.layout = dbc.Container([
             dbc.Row([
                 dbc.Col([
                     date_range_selection
-                    ])])],
+                ])
+            ])],
             md=4),
         dbc.Col([
             dbc.Row([
@@ -170,6 +181,16 @@ app.layout = dbc.Container([
                 dbc.Col([
                     total_cases_linechart
                 ])
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    total_death_linechart
+                ])
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    total_recovered_linechart
+                ])
             ])],
             md=8)
         ])])
@@ -177,6 +198,8 @@ app.layout = dbc.Container([
 # Set up callbacks/backend
 @app.callback(
     Output('line_totalcases', 'srcDoc'),
+    Output('line_totaldeaths', 'srcDoc'),
+    Output('line_totalrecovered', 'srcDoc'),
     Output('world_map', 'figure'),
     Input('country_filter', 'value'),
     Input('continent_filter', 'value'),
@@ -206,7 +229,7 @@ def filter_plot(country, continent, start_date, end_date):
     temp = plot_data.drop(['geometry', 'country_code', 'Date'], axis=1).groupby(['Country/Region']).agg(metrics).reset_index()
     plot_data = join_country_code_data(temp, country_code_data)
 
-    return plot(data, 'Confirmed', 'the number of confirmed cases'), generate_map(plot_data)
+    return plot(data, 'Confirmed', 'the number of confirmed cases'), plot(data, 'Deaths', 'the number of confirmed deaths'), plot(data, 'Recovered', 'the number of recoveries'),  generate_map(plot_data)
 
 def plot(data, metric, metric_name):
     chart = alt.Chart(data, title=f'How {metric_name} changes over time').mark_line().encode(
