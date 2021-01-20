@@ -130,6 +130,18 @@ date_range_selection = html.Label([
     )
 ])
 
+options_selection = html.Label([
+    'Options Selection',
+    dcc.RadioItems(
+    options=[
+        {'label': 'Absolute', 'value': 'Absolute'},
+        {'label': 'Per Capita', 'value': 'Per Capita'},
+    ],
+    value='Absolute',
+    labelStyle={'display': 'inline-block'}
+)  
+])
+
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
     style={'border-width': '0', 'width': '100%', 'height': '500px'}
@@ -168,6 +180,10 @@ app.layout = dbc.Container([
             dbc.Row([
                 dbc.Col([
                     date_range_selection
+                ])]),
+            dbc.Row([
+                dbc.Col([
+                    options_selection
                 ])
             ])],
             md=4),
