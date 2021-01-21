@@ -10,6 +10,8 @@ import geopandas as gpd
 import pandas as pd
 from datetime import datetime, date
 
+from enums import SelectionMode
+
 import json
 
 import plotly.express as px
@@ -45,8 +47,8 @@ def calculate_world_statistics(countries_df, group_col):
 
     return world_df
 
-def generate_map(data):
-    fig = px.choropleth(data, locations="country_code",
+def generate_map(chart_data):
+    fig = px.choropleth(chart_data, locations="country_code",
                     color="Confirmed",
                     hover_name="Country/Region",
                     color_continuous_scale='Reds',
@@ -131,26 +133,10 @@ countries_daywise_df = join_country_code_data(countries_daywise_df, country_code
 continents_daywise_df = calculate_continent_daywise(countries_daywise_df)
 world_daywise_df = calculate_world_daywise(countries_daywise_df)
 
-countries = ['All'] + list(set(countries_daywise_df['Country/Region'].tolist()))
-continents = ['All'] + list(set(countries_daywise_df['WHO Region'].tolist()))
+countries = list(set(countries_daywise_df['Country/Region'].tolist()))
+continents = list(set(countries_daywise_df['WHO Region'].tolist()))
 countries.sort()
 continents.sort()
-
-continent_selection = html.Label([
-    'Continent Selection',
-    dcc.Dropdown(
-        id='continent_filter',
-        value='All',  # REQUIRED to show the plot on the first page load
-        options=[{'label': continent, 'value': continent} for continent in continents])
-])
-
-country_selection = html.Label([
-    'Country Selection',
-    dcc.Dropdown(
-        id='country_filter',
-        value='All',  # REQUIRED to show the plot on the first page load
-        options=[{'label': country, 'value': country} for country in countries])
-])
 
 date_range_selection = html.Label([
     'Date range selection',
@@ -165,7 +151,7 @@ date_range_selection = html.Label([
 ])
 
 options_selection = html.Label([
-    'Options',
+    'Display Data',
     dcc.RadioItems(
     id='select_options',
     options=[
@@ -174,6 +160,30 @@ options_selection = html.Label([
     ],
     value='Absolute') # default option is absolute
 ])
+
+region_selection = html.Label([
+    'Selection Mode',
+    dcc.RadioItems(
+    id='region_selection',
+    options=[
+        {'label': item.name, 'value': item.value} for item in SelectionMode
+    ],
+    value=SelectionMode.World.value)
+])
+
+blank_div = html.Div([], id='blank_div')
+
+continent_filter = dcc.Dropdown(
+    id='continent_filter',
+    value='Africa',
+    options=[{'label': continent, 'value': continent} for continent in continents]
+)
+
+country_filter =  dcc.Dropdown(
+    id='country_filter',
+    value='Afghanistan',
+    options=[{'label': country, 'value': country} for country in countries]
+)
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
@@ -204,17 +214,25 @@ app.title = 'WHO Coronavirus Disease (COVID-19) Dashboard'
 app.layout = dbc.Container([
     html.H1('WHO Coronavirus Disease (COVID-19) Dashboard'),
     html.P(
-            "*Data available from Jan 2020 to July 2020"
+            "*data available from Jan 2020 to July 2020"
         ),
     dbc.Row([
         dbc.Col([
             dbc.Row([
                 dbc.Col([
-                    continent_selection
+                    region_selection
+                ])]),
+            dbc.Row([
+                dbc.Col([
+                    blank_div
+                ])]),
+            dbc.Row([
+                dbc.Col([
+                    continent_filter
                     ])]),
             dbc.Row([
                 dbc.Col([
-                    country_selection
+                    country_filter
                     ])]),
             dbc.Row([
                 dbc.Col([
@@ -246,7 +264,8 @@ app.layout = dbc.Container([
                     total_recovered_linechart
                     ])                               
 
-    ])  ])      
+    ])
+])      
         
 
 # Set up callbacks/backend
@@ -255,56 +274,73 @@ app.layout = dbc.Container([
     Output('line_totaldeaths', 'srcDoc'),
     Output('line_totalrecovered', 'srcDoc'),
     Output('world_map', 'figure'),
+    Input('region_selection', 'value'),
     Input('country_filter', 'value'),
     Input('continent_filter', 'value'),
     Input('date_selection_range', 'start_date'),
     Input('date_selection_range', 'end_date'),
     Input('select_options', 'value'))
-def filter_plot(country, continent, start_date, end_date, options):
-    data = world_daywise_df
-    plot_data = countries_daywise_df
+def filter_plot(mode, country, continent, start_date, end_date, options):
+    # Default is World mode
+    chart_data = world_daywise_df
+    map_data = countries_daywise_df
 
-    if is_updated('continent', continent):
-        prev_vals['continent'] = continent
-        if continent != 'All':
-            data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
-            plot_data = countries_daywise_df[countries_daywise_df['WHO Region'] == continent]
-        if is_perCapita(options):
-            for metric in ['Confirmed', 'Deaths', 'Recovered']:
-                data[metric + '_per_capita'] = data[metric] / data['Population']
-                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
+    if mode == SelectionMode.Continents.value:
+        #Continents mode
+        chart_data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
+        map_data = map_data[map_data['WHO Region'] == continent]
+    elif mode == SelectionMode.Countries.value:
+        # Countries mode
+        chart_data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
+        map_data = chart_data
 
-    elif is_updated('country', country):
-        prev_vals['country'] = country
-        if country != 'All':
-            data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
-            plot_data = data
-        if is_perCapita(options):
-            for metric in ['Confirmed', 'Deaths', 'Recovered']:
-                data[metric + '_per_capita'] = data[metric] / data['Population']
-                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
-    
-    data = data.query('Date >= @start_date & Date <= @end_date')
-    plot_data = plot_data.query('Date >= @start_date & Date <= @end_date')
-
-    print("Plot data shape is:", plot_data.shape)
+    chart_data = chart_data.query('Date >= @start_date & Date <= @end_date')
+    map_data = map_data.query('Date >= @start_date & Date <= @end_date')
 
     # fix error when groupby geometry or put it in the aggregate column
-    temp = plot_data.drop(['geometry', 'country_code', 'Date'], axis=1).groupby(['Country/Region']).agg(metrics).reset_index()
-    plot_data = join_country_code_data(temp, country_code_data)
+    temp = map_data.drop(['geometry', 'country_code', 'Date'], axis=1).groupby(['Country/Region']).agg(metrics).reset_index()
+    map_data = join_country_code_data(temp, country_code_data)
 
     if is_perCapita(options):
-        return plot(data, 'Confirmed_per_capita', 'the number of confirmed cases'), plot(data, 'Deaths_per_capita', 'the number of confirmed deaths'), plot(data, 'Recovered_per_capita', 'the number of recoveries'),  generate_map(plot_data)
+        for metric in ['Confirmed', 'Deaths', 'Recovered']:
+            chart_data[metric + '_per_capita'] = chart_data[metric] / chart_data['Population']
+            map_data[metric + '_per_capita'] = map_data[metric] / map_data['Population']
+            
+    if is_perCapita(options):
+        return (plot(chart_data, 'Confirmed_per_capita', 'the number of confirmed cases'),
+            plot(chart_data, 'Deaths_per_capita', 'the number of confirmed deaths'),
+            plot(chart_data, 'Recovered_per_capita', 'the number of recoveries'),
+            generate_map(map_data))
     
-    return plot(data, 'Confirmed', 'the number of confirmed cases'), plot(data, 'Deaths', 'the number of confirmed deaths'), plot(data, 'Recovered', 'the number of recoveries'),  generate_map(plot_data)
+    return (plot(chart_data, 'Confirmed', 'the number of confirmed cases'),
+        plot(chart_data, 'Deaths', 'the number of confirmed deaths'),
+        plot(chart_data, 'Recovered', 'the number of recoveries'), 
+        generate_map(map_data))
 
 
-def plot(data, metric, metric_name):
-    chart = alt.Chart(data, title=f'How {metric_name} changes over time').mark_line().encode(
+def plot(chart_data, metric, metric_name):
+    chart = alt.Chart(chart_data, title=f'How {metric_name} changes over time').mark_line().encode(
         x=alt.X('month(Date):T', title="Month"),
         y=alt.Y(f'mean({metric}):Q', title=f'Average of {metric_name}')) 
         
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
+
+# will display / show the dropdown list for continents / countries based
+# on whether the user selects World / Continents or Countries
+@app.callback(
+    Output('blank_div', 'style'),
+    Output('continent_filter', 'style'),
+    Output('country_filter', 'style'),
+    Input('region_selection', 'value'))
+def get_region_dropdown(mode):
+    print(mode)
+    if mode == SelectionMode.Continents.value:
+        return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
+    elif mode == SelectionMode.Countries.value:
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
+    
+    return {'height': '35px'}, {'display': 'none'}, {'display': 'none'}
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
