@@ -71,14 +71,29 @@ def load_daily_data():
     return pd.read_csv(os.path.join('data', 'raw', 'full_grouped.csv'))
 
 def load_population_data():
-    return  pd.read_csv(os.path.join('data', 'raw', 'worldometer_data.csv'),
+    return  pd.read_csv(os.path.join('data', 'processed', 'worldometer_data.csv'),
         usecols = ['Country/Region','Population'])
 
 def load_country_code_data():
+    name_conversion = {
+        'East Timor': 'Timor-Leste',
+        'Republic of the Congo': 'Congo (Kinshasa)',
+        'Ivory Coast': 'Cote d\'Ivoire',
+        'Macedonia': 'North Macedonia',
+        'Myanmar': 'Burma',
+        'Republic of Serbia': 'Serbia',
+        'Taiwan': 'Taiwan*',
+        'The Bahamas': 'Bahamas',
+        'United Republic of Tanzania': 'Tanzania',
+        'United States of America': 'US'
+    }
+
     shapefile = os.path.join('data', 'ne_110m_admin_0_countries.shp')
 
     gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
     gdf.columns = ['country', 'country_code', 'geometry']
+
+    gdf.loc[gdf['country'].isin(name_conversion.keys()), 'country'] = gdf['country'].map(name_conversion)
 
     return gdf
 
