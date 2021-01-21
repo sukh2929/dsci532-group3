@@ -162,17 +162,17 @@ options_selection = html.Label([
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+    style={'border-width': '0', 'width': '150%', 'height': '500px'}
 )
 
 total_death_linechart = html.Iframe(
     id='line_totaldeaths',
-    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+    style={'border-width': '0', 'width': '150%', 'height': '500px'}
 )
 
 total_recovered_linechart = html.Iframe(
     id='line_totalrecovered',
-    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+    style={'border-width': '0', 'width': '150%', 'height': '500px'}
 )
 
 map = dcc.Graph(
@@ -253,23 +253,25 @@ def filter_plot(country, continent, start_date, end_date, options):
         if continent != 'All':
             data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
             plot_data = countries_daywise_df[countries_daywise_df['WHO Region'] == continent]
-        if is_perCapita(options):
-            for metric in ['Confirmed', 'Deaths', 'Recovered']:
-                data[metric + '_per_capita'] = data[metric] / data['Population']
-                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
 
     elif is_updated('country', country):
         prev_vals['country'] = country
         if country != 'All':
             data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
             plot_data = data
-        if is_perCapita(options):
-            for metric in ['Confirmed', 'Deaths', 'Recovered']:
-                data[metric + '_per_capita'] = data[metric] / data['Population']
-                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
     
     data = data.query('Date >= @start_date & Date <= @end_date')
     plot_data = plot_data.query('Date >= @start_date & Date <= @end_date')
+
+    if is_perCapita(options):
+            for metric in ['Confirmed', 'Deaths', 'Recovered']:
+                data[metric + '_per_capita'] = data[metric] / data['Population']
+                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
+
+    if is_perCapita(options):
+            for metric in ['Confirmed', 'Deaths', 'Recovered']:
+                data[metric + '_per_capita'] = data[metric] / data['Population']
+                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
 
     print("Plot data shape is:", plot_data.shape)
 
@@ -278,15 +280,15 @@ def filter_plot(country, continent, start_date, end_date, options):
     plot_data = join_country_code_data(temp, country_code_data)
 
     if is_perCapita(options):
-        return plot(data, 'Confirmed_per_capita', 'the number of confirmed cases'), plot(data, 'Deaths_per_capita', 'the number of confirmed deaths'), plot(data, 'Recovered_per_capita', 'the number of recoveries'),  generate_map(plot_data)
+        return plot(data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), plot(data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'), plot(data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'),  generate_map(plot_data)
     
-    return plot(data, 'Confirmed', 'the number of confirmed cases'), plot(data, 'Deaths', 'the number of confirmed deaths'), plot(data, 'Recovered', 'the number of recoveries'),  generate_map(plot_data)
+    return plot(data, 'Confirmed', 'Confirmed Cases'), plot(data, 'Deaths', 'Confirmed Deaths'), plot(data, 'Recovered', 'Confirmed Recoveries'),  generate_map(plot_data)
 
 
 def plot(data, metric, metric_name):
-    chart = alt.Chart(data, title=f'How {metric_name} changes over time').mark_line().encode(
+    chart = alt.Chart(data).mark_line().encode(
         x=alt.X('month(Date):T', title="Month"),
-        y=alt.Y(f'mean({metric}):Q', title=f'Average of {metric_name}')) 
+        y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}')).properties(title=['Change in', f'{metric_name}','Over Time'])
         
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
