@@ -21,6 +21,9 @@ def is_updated(key, new_value):
     return ((prev_vals[key] is None and new_value is not None)
         or (prev_vals[key] is not None and prev_vals[key] != new_value))
 
+def is_perCapita(key):
+    return key == "Per Capita"
+
 def calculate_continent_daywise(countries_daywise_df):
     return calculate_continent_statistics(countries_daywise_df, 'Date')
 
@@ -131,15 +134,14 @@ date_range_selection = html.Label([
 ])
 
 options_selection = html.Label([
-    'Options Selection',
+    'Options',
     dcc.RadioItems(
+    id='select_options',
     options=[
         {'label': 'Absolute', 'value': 'Absolute'},
         {'label': 'Per Capita', 'value': 'Per Capita'},
     ],
-    value='Absolute',
-    labelStyle={'display': 'inline-block'}
-)  
+    value='Absolute') # default option is absolute
 ])
 
 total_cases_linechart = html.Iframe(
@@ -220,8 +222,9 @@ app.layout = dbc.Container([
     Input('country_filter', 'value'),
     Input('continent_filter', 'value'),
     Input('date_selection_range', 'start_date'),
-    Input('date_selection_range', 'end_date'))
-def filter_plot(country, continent, start_date, end_date):
+    Input('date_selection_range', 'end_date'),
+    Input('select_options', 'value'))
+def filter_plot(country, continent, start_date, end_date, options):
     data = world_daywise_df
     plot_data = countries_daywise_df
 
@@ -230,10 +233,17 @@ def filter_plot(country, continent, start_date, end_date):
         if continent != 'All':
             data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
             plot_data = countries_daywise_df[countries_daywise_df['WHO Region'] == continent]
+        if is_perCapita(options):
+            data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent] / continents_daywise_df[continents_daywise_df['Population'] == continent]
+            plot_data = countries_daywise_df[countries_daywise_df['WHO Region'] == continent] / continents_daywise_df[continents_daywise_df['Population'] == continent]
+
     elif is_updated('country', country):
         prev_vals['country'] = country
         if country != 'All':
             data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
+            plot_data = data
+        if is_perCapita(options):
+            data = countries_daywise_df[countries_daywise_df['Country/Region'] == country] / countries_daywise_df[countries_daywise_df['Population'] == country]
             plot_data = data
     
     data = data.query('Date >= @start_date & Date <= @end_date')
