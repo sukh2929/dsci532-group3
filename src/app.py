@@ -268,11 +268,6 @@ def filter_plot(country, continent, start_date, end_date, options):
                 data[metric + '_per_capita'] = data[metric] / data['Population']
                 plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
 
-    if is_perCapita(options):
-            for metric in ['Confirmed', 'Deaths', 'Recovered']:
-                data[metric + '_per_capita'] = data[metric] / data['Population']
-                plot_data[metric + '_per_capita'] = plot_data[metric] / plot_data['Population']
-
     print("Plot data shape is:", plot_data.shape)
 
     # fix error when groupby geometry or put it in the aggregate column
