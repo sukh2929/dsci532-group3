@@ -155,12 +155,15 @@ date_range_selection = html.Label([
 options_selection = html.Label([
     'Display Data',
     dcc.RadioItems(
-    id='select_options',
-    options=[
-        {'label': 'Absolute', 'value': 'Absolute'},
-        {'label': 'Per Capita', 'value': 'Per Capita'},
-    ],
-    value='Absolute') # default option is absolute
+        id='select_options',
+        options=[
+            {'label': 'Absolute', 'value': 'Absolute'},
+            {'label': 'Per Capita', 'value': 'Per Capita'},
+        ],
+        value='Absolute',
+        labelStyle={'margin-right': '25px'},
+        inputStyle={'margin-right': '5px'}
+    ) # default option is absolute
 ])
 
 region_selection = html.Label([
@@ -171,6 +174,8 @@ region_selection = html.Label([
             {'label': item.name, 'value': item.value} for item in SelectionMode
         ],
         value=SelectionMode.World.value,
+        labelStyle={'margin-right': '25px'},
+        inputStyle={'margin-right': '5px'}
     )
 ])
 
