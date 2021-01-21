@@ -10,11 +10,15 @@ import geopandas as gpd
 import pandas as pd
 from datetime import datetime, date
 
-from enums import SelectionMode
-
 import json
 
 import plotly.express as px
+
+from enum import Enum
+class SelectionMode(Enum):
+    World = 1
+    Continents = 2
+    Countries = 3
 
 # As there is only 1 callback function allowed to map to each output,
 # we use this to check which value got updated and updating the plots
