@@ -148,7 +148,9 @@ date_range_selection = html.Label([
         max_date_allowed=date(2020, 7, 27),
         initial_visible_month=date(2020, 1, 22),
         start_date=date(2020, 1, 22),
-        end_date=date(2020, 7, 27)
+        end_date=date(2020, 7, 27),
+        stay_open_on_select=True,
+        updatemode='bothdates'
     )
 ])
 
