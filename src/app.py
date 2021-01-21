@@ -192,17 +192,17 @@ country_filter =  dcc.Dropdown(
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+    style={'border-width': '0', 'width': '150%', 'height': '500px'}
 )
 
 total_death_linechart = html.Iframe(
     id='line_totaldeaths',
-    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+    style={'border-width': '0', 'width': '150%', 'height': '500px'}
 )
 
 total_recovered_linechart = html.Iframe(
     id='line_totalrecovered',
-    style={'border-width': '0', 'width': '100%', 'height': '500px'}
+    style={'border-width': '0', 'width': '150%', 'height': '500px'}
 )
 
 map = dcc.Graph(
@@ -254,17 +254,16 @@ app.layout = dbc.Container([
             ])
             
             ])]),
-    dbc.Row([
-     
+    dbc.Row([     
         dbc.Col([
-                    total_cases_linechart
-                    ]),
+            total_cases_linechart
+        ]),
         dbc.Col([
-                    total_death_linechart
-                    ]),
+            total_death_linechart
+        ]),
         dbc.Col([
-                    total_recovered_linechart
-                    ])                               
+            total_recovered_linechart
+        ])                               
 
     ])
 ])      
@@ -315,24 +314,24 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
             map_data[metric + '_per_capita'] = map_data[metric] / map_data['Population']
             
     if is_perCapita(options):
-        return (plot(chart_data, 'Confirmed_per_capita', 'the number of confirmed cases'),
-            plot(chart_data, 'Deaths_per_capita', 'the number of confirmed deaths'),
-            plot(chart_data, 'Recovered_per_capita', 'the number of recoveries'),
-            generate_map(map_data))
-    
-    return (plot(chart_data, 'Confirmed', 'the number of confirmed cases'),
-        plot(chart_data, 'Deaths', 'the number of confirmed deaths'),
-        plot(chart_data, 'Recovered', 'the number of recoveries'), 
-        generate_map(map_data))
+        return (plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'),
+                plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'),
+                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'),
+                generate_map(map_data))
+
+        return (plot(chart_data, 'Confirmed', 'Confirmed Cases'),
+                plot(chart_data, 'Deaths', 'Confirmed Deaths'),
+                plot(chart_data, 'Recovered', 'Confirmed Recoveries'),
+                generate_map(map_data))
 
 
 def plot(chart_data, metric, metric_name):
-    chart = alt.Chart(chart_data, title=f'How {metric_name} changes over time').mark_line().encode(
+    chart = (alt.Chart(chart_data).mark_line().encode(
         x=alt.X('month(Date):T', title="Month"),
-        y=alt.Y(f'mean({metric}):Q', title=f'Average of {metric_name}'),
-        color='Country/Region'
-    ) 
-        
+        y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}'),
+        color='Country/Region')
+        .properties(title=['Change in', f'{metric_name}','Over Time']))
+ 
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
 # will display / show the dropdown list for continents / countries based
