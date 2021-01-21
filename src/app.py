@@ -213,9 +213,6 @@ map = dcc.Graph(
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-
-app.title = 'WHO Coronavirus Disease (COVID-19) Dashboard'
-
 app.layout = dbc.Container([
     html.H1('WHO Coronavirus Disease (COVID-19) Dashboard'),
     html.P(
