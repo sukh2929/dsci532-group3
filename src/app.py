@@ -35,7 +35,7 @@ def calculate_continent_daywise(countries_daywise_df):
 
 def calculate_continent_statistics(countries_df, group_col):
     continents_df = countries_df.drop(drop_cols, axis=1).groupby([group_col, 'WHO Region']).agg('mean').reset_index()
-    continents_df['Country/Region'] = 'All'
+    continents_df['Country/Region'] = continents_df['WHO Region']
     continents_df['Population'] = population_data['Population'].sum()
 
     return continents_df
@@ -45,8 +45,8 @@ def calculate_world_daywise(countries_daywise_df):
 
 def calculate_world_statistics(countries_df, group_col):
     world_df = countries_df.drop(drop_cols, axis=1).groupby(group_col).agg('mean').reset_index()
-    world_df['Country/Region'] = 'All'
-    world_df['WHO Region'] = 'All'
+    world_df['Country/Region'] = 'World'
+    world_df['WHO Region'] = 'World'
     world_df['Population'] = population_data['Population'].sum()
 
     return world_df
@@ -69,8 +69,6 @@ def generate_map(chart_data):
         projection_type='equirectangular'),
         margin={"r":0,"t":0,"l":0,"b":0})            
 
-                
-               
     return fig
 
 def load_daily_data():
@@ -168,11 +166,12 @@ options_selection = html.Label([
 region_selection = html.Label([
     'Selection Mode',
     dcc.RadioItems(
-    id='region_selection',
-    options=[
-        {'label': item.name, 'value': item.value} for item in SelectionMode
-    ],
-    value=SelectionMode.World.value)
+        id='region_selection',
+        options=[
+            {'label': item.name, 'value': item.value} for item in SelectionMode
+        ],
+        value=SelectionMode.World.value,
+    )
 ])
 
 blank_div = html.Div([], id='blank_div')
@@ -180,13 +179,15 @@ blank_div = html.Div([], id='blank_div')
 continent_filter = dcc.Dropdown(
     id='continent_filter',
     value='Africa',
-    options=[{'label': continent, 'value': continent} for continent in continents]
+    options=[{'label': continent, 'value': continent} for continent in continents],
+    multi=True
 )
 
 country_filter =  dcc.Dropdown(
     id='country_filter',
     value='Afghanistan',
-    options=[{'label': country, 'value': country} for country in countries]
+    options=[{'label': country, 'value': country} for country in countries],
+    multi=True
 )
 
 total_cases_linechart = html.Iframe(
@@ -288,14 +289,20 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
     # Default is World mode
     chart_data = world_daywise_df
     map_data = countries_daywise_df
-
+    print(country, continent)
     if mode == SelectionMode.Continents.value:
         #Continents mode
-        chart_data = continents_daywise_df[continents_daywise_df['WHO Region'] == continent]
-        map_data = map_data[map_data['WHO Region'] == continent]
+        if not isinstance(continent, list):
+            continent = [continent]
+
+        chart_data = continents_daywise_df[continents_daywise_df['WHO Region'].isin(continent)]
+        map_data = map_data[map_data['WHO Region'].isin(continent)]
     elif mode == SelectionMode.Countries.value:
         # Countries mode
-        chart_data = countries_daywise_df[countries_daywise_df['Country/Region'] == country]
+        if not isinstance(country, list):
+            country = [country]
+
+        chart_data = countries_daywise_df[countries_daywise_df['Country/Region'].isin(country)]
         map_data = chart_data
 
     chart_data = chart_data.query('Date >= @start_date & Date <= @end_date')
@@ -325,7 +332,9 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
 def plot(chart_data, metric, metric_name):
     chart = alt.Chart(chart_data, title=f'How {metric_name} changes over time').mark_line().encode(
         x=alt.X('month(Date):T', title="Month"),
-        y=alt.Y(f'mean({metric}):Q', title=f'Average of {metric_name}')) 
+        y=alt.Y(f'mean({metric}):Q', title=f'Average of {metric_name}'),
+        color='Country/Region'
+    ) 
         
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
