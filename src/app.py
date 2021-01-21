@@ -46,10 +46,26 @@ def calculate_world_statistics(countries_df, group_col):
     return world_df
 
 def generate_map(data):
-    return px.choropleth(data, locations="country_code",
+    fig = px.choropleth(data, locations="country_code",
                     color="Confirmed",
                     hover_name="Country/Region",
-                    color_continuous_scale='Reds')
+                    color_continuous_scale='Reds',
+                    projection= 'equirectangular',
+                    labels= {'Confirmed':'Confirmed Cases'},
+                    width = 700,
+                    height = 300
+                    )
+    
+    fig.update_layout(
+        geo=dict(
+        showframe=False,
+        showcoastlines=False,
+        projection_type='equirectangular'),
+        margin={"r":0,"t":0,"l":0,"b":0})            
+
+                
+               
+    return fig
 
 def load_daily_data():
     return pd.read_csv(os.path.join('data', 'raw', 'full_grouped.csv'))
@@ -167,8 +183,13 @@ map = dcc.Graph(
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+app.title = 'WHO Coronavirus Disease (COVID-19) Dashboard'
+
 app.layout = dbc.Container([
-    html.H1('COVID-19'),
+    html.H1('WHO Coronavirus Disease (COVID-19) Dashboard'),
+    html.P(
+            "*Data available from Jan 2020 to July 2020"
+        ),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -183,35 +204,34 @@ app.layout = dbc.Container([
                 dbc.Col([
                     date_range_selection
                 ])]),
-            dbc.Row([
+             dbc.Row([
                 dbc.Col([
                     options_selection
                 ])
             ])],
             md=4),
         dbc.Col([
-            dbc.Row([
+               
                 dbc.Col([
                     map
-                ])
-            ]),
-            dbc.Row([
-                dbc.Col([
+                
+            ])
+            
+            ])]),
+    dbc.Row([
+     
+        dbc.Col([
                     total_cases_linechart
-                ])
-            ]),
-            dbc.Row([
-                dbc.Col([
+                    ]),
+        dbc.Col([
                     total_death_linechart
-                ])
-            ]),
-            dbc.Row([
-                dbc.Col([
+                    ]),
+        dbc.Col([
                     total_recovered_linechart
-                ])
-            ])],
-            md=8)
-        ])])
+                    ])                               
+
+    ])  ])      
+        
 
 # Set up callbacks/backend
 @app.callback(
