@@ -67,7 +67,7 @@ def generate_map(chart_data):
         showframe=False,
         showcoastlines=False,
         projection_type='equirectangular'),
-        margin={"r":0,"t":0,"l":0,"b":0})            
+        margin={"r":0,"t":20,"l":0,"b":0})            
 
     return fig
 
@@ -192,17 +192,17 @@ country_filter =  dcc.Dropdown(
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '150%', 'height': '500px'}
+    style={'border-width': '0', 'width': '100%', 'height': '300px'}
 )
 
 total_death_linechart = html.Iframe(
     id='line_totaldeaths',
-    style={'border-width': '0', 'width': '150%', 'height': '500px'}
+    style={'border-width': '0', 'width': '100%', 'height': '300px'}
 )
 
 total_recovered_linechart = html.Iframe(
     id='line_totalrecovered',
-    style={'border-width': '0', 'width': '150%', 'height': '500px'}
+    style={'border-width': '0', 'width': '100%', 'height': '300px'}
 )
 
 map = dcc.Graph(
@@ -214,10 +214,7 @@ map = dcc.Graph(
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.layout = dbc.Container([
-    html.H1('WHO Coronavirus Disease (COVID-19) Dashboard'),
-    html.P(
-            "*data available from Jan 2020 to July 2020"
-        ),
+    html.H3('WHO Coronavirus Disease (COVID-19) Dashboard'),
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -246,14 +243,12 @@ app.layout = dbc.Container([
                 ])
             ])],
             md=4),
-        dbc.Col([
-               
-                dbc.Col([
-                    map
-                
+        dbc.Col([  
+            dbc.Col([
+                map
             ])
-            
-            ])]),
+        ])
+    ]),
     dbc.Row([     
         dbc.Col([
             total_cases_linechart
@@ -263,8 +258,7 @@ app.layout = dbc.Container([
         ]),
         dbc.Col([
             total_recovered_linechart
-        ])                               
-
+        ])
     ])
 ])      
         
@@ -314,23 +308,23 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
             map_data[metric + '_per_capita'] = map_data[metric] / map_data['Population']
             
     if is_perCapita(options):
-        return (plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'),
-                plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'),
-                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'),
-                generate_map(map_data))
+        return plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), \
+                plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'), \
+                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'), \
+                generate_map(map_data)
 
-        return (plot(chart_data, 'Confirmed', 'Confirmed Cases'),
-                plot(chart_data, 'Deaths', 'Confirmed Deaths'),
-                plot(chart_data, 'Recovered', 'Confirmed Recoveries'),
-                generate_map(map_data))
+    return plot(chart_data, 'Confirmed', 'Confirmed Cases'), \
+            plot(chart_data, 'Deaths', 'Confirmed Deaths'), \
+            plot(chart_data, 'Recovered', 'Confirmed Recoveries'), \
+            generate_map(map_data)
 
 
 def plot(chart_data, metric, metric_name):
     chart = (alt.Chart(chart_data).mark_line().encode(
         x=alt.X('month(Date):T', title="Month"),
-        y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}'),
-        color='Country/Region')
-        .properties(title=['Change in', f'{metric_name}','Over Time']))
+        y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}', axis=alt.Axis(tickCount=5)),
+        color=alt.Color('Country/Region', title='Region'))
+        .properties(title=[f'{metric_name} Over Time'], width=180, height=180))
  
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
