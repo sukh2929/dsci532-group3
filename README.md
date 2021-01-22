@@ -6,7 +6,7 @@ Dataset: COVID-19 [Dataset](https://www.kaggle.com/imdevskp/corona-virus-report?
 
 ## App Sketch
 
-The purpose of this app is to allow users to explore global Covid-19 data by time and region in an intuitive manner.
+The purpose of this app is to allow users to explore global COVID-19 data by time and region in an intuitive manner.
 
 The landing page consists of a world heatmap which highlights regions that have been most and least impacted by the virus. Users can select the continent, country and date range they are interested in by using the respective dropdown menus and sliders. There is also a further option to specify if they are interested in absolute or per capita data through the radio buttons below. Once these fields are filled out, the bottom of the page will populate several plots with aggregated data that the user can explore in greater detail. The scroll bar will allow them to view up to six plots. 
 
