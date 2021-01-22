@@ -28,6 +28,17 @@ def is_updated(key, new_value):
         or (prev_vals[key] is not None and prev_vals[key] != new_value))
 
 def is_perCapita(key):
+     """
+    Returns true if per capita is selected, false otherwise
+    Parameters
+    ----------
+    key : str 
+        value of option selectected (absolute or per capita)
+    Returns
+    -------
+    boolean
+        true if key is "Per Capita", else false 
+    """
     return key == "Per Capita"
 
 def calculate_continent_daywise(countries_daywise_df):
@@ -52,6 +63,17 @@ def calculate_world_statistics(countries_df, group_col):
     return world_df
 
 def generate_map(chart_data):
+    """
+    Plots interactive world map
+    Parameters
+    ----------
+    chart_data : df 
+        dataframe of filtered data to plot
+    Returns
+    -------
+    plot
+        map of the world colored by confirmed cases
+    """
     fig = px.choropleth(chart_data, locations="country_code",
                     color="Confirmed",
                     hover_name="Country/Region",
@@ -327,6 +349,21 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
 
 
 def plot(chart_data, metric, metric_name):
+    """
+    Plots an interactive line chart with the time period on the x axis and selected metric on the y axis
+    Parameters
+    ----------
+    chart_data : df 
+        dataframe being plotted
+    metric : str
+        metric being examined as specifed in the metrics dictionary
+    metric_name : str
+        title of plot that should be outputted
+    Returns
+    -------
+    plot
+        a line plot with single or multiple lines depending on dataframe selection 
+    """
     chart = (alt.Chart(chart_data).mark_line().encode(
         x=alt.X('month(Date):T', title="Month"),
         y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}', axis=alt.Axis(tickCount=5)),
