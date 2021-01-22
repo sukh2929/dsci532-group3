@@ -12,3 +12,5 @@ dependencies:
   - pip:
     - dash==1.18.1
     - dash_bootstrap_components
+    - virtualenv
+    - gunicorn
