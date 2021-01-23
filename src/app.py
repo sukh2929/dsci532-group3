@@ -349,17 +349,17 @@ country_filter =  dcc.Dropdown(
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '100%', 'height': '400px'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0'}
 )
 
 total_death_linechart = html.Iframe(
     id='line_totaldeaths',
-    style={'border-width': '0', 'width': '100%', 'height': '400px'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0'}
 )
 
 total_recovered_linechart = html.Iframe(
     id='line_totalrecovered',
-    style={'border-width': '0', 'width': '100%', 'height': '400px'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0'}
 )
 
 map = dcc.Graph(
@@ -524,10 +524,10 @@ def plot(chart_data, metric, metric_name, show_legend=False):
         legend = None
 
     chart = (alt.Chart(chart_data).mark_line().encode(
-        x=alt.X('month(Date):T', title='Month'),
+        x=alt.X('month(Date):T', title='Month', axis=alt.Axis(tickCount=7)),
         y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}', axis=alt.Axis(tickCount=5)),
         color=alt.Color('Country/Region', title='Region', legend=legend))
-        .properties(title=[f'{metric_name} Over Time'], width=250, height=180)
+        .properties(title=[f'{metric_name} Over Time'], width=240, height=180)
     )
  
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
