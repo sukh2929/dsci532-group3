@@ -28,6 +28,7 @@ def is_perCapita(key):
     ----------
     key : str 
         value of option selectected (absolute or per capita)
+
     Returns
     -------
     boolean
@@ -43,6 +44,7 @@ def calculate_continent_daywise(countries_daywise_df):
     ----------
     countries_daywise_df : df 
         A dataframe of daily observations for all countries
+
     Returns
     -------
     continents_df
@@ -61,6 +63,7 @@ def calculate_continent_statistics(countries_df, group_col):
         A dataframe of countries
     group_col : str 
         The column to group the data
+
     Returns
     -------
     continents_df
@@ -80,6 +83,7 @@ def calculate_world_daywise(countries_daywise_df):
     ----------
     countries_daywise_df : df 
         A dataframe of daily observations
+
     Returns
     -------
     world_df
@@ -98,6 +102,7 @@ def calculate_world_statistics(countries_df, group_col):
         A dataframe of countries
     group_col : str 
         The column to group the data
+
     Returns
     -------
     world_df
@@ -110,7 +115,7 @@ def calculate_world_statistics(countries_df, group_col):
 
     return world_df
 
-def generate_map(chart_data):
+def generate_map(chart_data, metric='Confirmed', labels=None):
     """
     Plot interactive world map
 
@@ -118,6 +123,11 @@ def generate_map(chart_data):
     ----------
     chart_data : df 
         A dataframe of filtered data to plot
+    metric: str, default to 'Confirmed'
+        A metric that we want to display
+    labels: dict, default to None
+        A mapping between metric name and label name
+
     Returns
     -------
     plot
@@ -126,14 +136,11 @@ def generate_map(chart_data):
     fig = px.choropleth(
         chart_data,
         locations="country_code",
-        color="Confirmed",
+        color=metric,
         hover_name="Country/Region",
         color_continuous_scale='Reds',
         projection= 'equirectangular',
-        labels= {
-            'Confirmed':'Confirmed Cases',
-            'Deaths': 'Deaths'
-        },
+        labels= labels,
         width = 700,
         height = 300
     )
@@ -349,17 +356,17 @@ country_filter =  dcc.Dropdown(
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0', 'padding': '0'}
 )
 
 total_death_linechart = html.Iframe(
     id='line_totaldeaths',
-    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0', 'padding': '0'}
 )
 
 total_recovered_linechart = html.Iframe(
     id='line_totalrecovered',
-    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px', 'margin': '0 -30 0 0', 'padding': '0'}
 )
 
 map = dcc.Graph(
@@ -491,12 +498,12 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
         return plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), \
                 plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'), \
                 plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita', True), \
-                generate_map(map_data)
+                generate_map(map_data, 'Confirmed_per_capita', {'Confirmed_per_capita':'Confirmed Cases Per Capita'})
 
     return plot(chart_data, 'Confirmed', 'Confirmed Cases'), \
         plot(chart_data, 'Deaths', 'Confirmed Deaths', True), \
         plot(chart_data, 'Recovered', 'Confirmed Recoveries'), \
-        generate_map(map_data)
+        generate_map(map_data, 'Confirmed', {'Confirmed':'Confirmed Cases'})
 
 
 def plot(chart_data, metric, metric_name, show_legend=False):
