@@ -20,16 +20,10 @@ class SelectionMode(Enum):
     Continents = 2
     Countries = 3
 
-# As there is only 1 callback function allowed to map to each output,
-# we use this to check which value got updated and updating the plots
-# accordingly
-def is_updated(key, new_value):
-    return ((prev_vals[key] is None and new_value is not None)
-        or (prev_vals[key] is not None and prev_vals[key] != new_value))
-
 def is_perCapita(key):
-     """
-    Returns true if per capita is selected, false otherwise
+    """
+    Check if Per Capita mode is selected
+
     Parameters
     ----------
     key : str 
@@ -37,37 +31,40 @@ def is_perCapita(key):
     Returns
     -------
     boolean
-        true if key is "Per Capita", else false 
+        True if key is "Per Capita", else False 
     """
     return key == "Per Capita"
 
 def calculate_continent_daywise(countries_daywise_df):
-     """
-    Returns the output of calculate_continent_statistics()
+    """
+    Calculate the statistics on a continent level for every single day
+
     Parameters
     ----------
     countries_daywise_df : df 
-        dataframe of daily observations
+        A dataframe of daily observations for all countries
     Returns
     -------
     continents_df
-        output of  calculate_continent_statistics()
+        A dataframe of continent's daily statistics
     """
     return calculate_continent_statistics(countries_daywise_df, 'Date')
 
 def calculate_continent_statistics(countries_df, group_col):
     """
-    Returns dataframe based on a column to group the data by
+    Calculate the statistics on a continent level based on a particular time interval grouping.
+    Aggegrating method is default to be 'mean' as of now.
+
     Parameters
     ----------
     countries_df : df 
-        dataframe of countries
+        A dataframe of countries
     group_col : str 
-        the column to group the data
+        The column to group the data
     Returns
     -------
     continents_df
-        grouped dataframe
+        A dataframe of continent's statistics
     """
     continents_df = countries_df.drop(drop_cols, axis=1).groupby([group_col, 'WHO Region']).agg('mean').reset_index()
     continents_df['Country/Region'] = continents_df['WHO Region']
@@ -76,32 +73,35 @@ def calculate_continent_statistics(countries_df, group_col):
     return continents_df
 
 def calculate_world_daywise(countries_daywise_df):
-     """
-    Returns the output of calculate_world_statistics()
+    """
+    Calculate the statistics for the whole world for every single day
+
     Parameters
     ----------
     countries_daywise_df : df 
-        dataframe of daily observations
+        A dataframe of daily observations
     Returns
     -------
     world_df
-        output of  calculate_world_statistics()
+        A dataframe of the whole world's daily statistics
     """
     return calculate_world_statistics(countries_daywise_df, 'Date')
 
 def calculate_world_statistics(countries_df, group_col):
     """
-    Returns dataframe based on a column to group the data by
+    Calculate the statistics for the whole world based on a particular time interval grouping.
+    Aggegrating method is default to be 'mean' as of now.
+
     Parameters
     ----------
     countries_df : df 
-        dataframe of countries
+        A dataframe of countries
     group_col : str 
-        the column to group the data
+        The column to group the data
     Returns
     -------
     world_df
-        grouped dataframe
+        A dataframe of the world's statistics
     """
     world_df = countries_df.drop(drop_cols, axis=1).groupby(group_col).agg('mean').reset_index()
     world_df['Country/Region'] = 'World'
@@ -112,22 +112,28 @@ def calculate_world_statistics(countries_df, group_col):
 
 def generate_map(chart_data):
     """
-    Plots interactive world map
+    Plot interactive world map
+
     Parameters
     ----------
     chart_data : df 
-        dataframe of filtered data to plot
+        A dataframe of filtered data to plot
     Returns
     -------
     plot
-        map of the world colored by confirmed cases
+        A map of the world colored by confirmed cases
     """
-    fig = px.choropleth(chart_data, locations="country_code",
+    fig = px.choropleth(
+        chart_data,
+        locations="country_code",
         color="Confirmed",
         hover_name="Country/Region",
         color_continuous_scale='Reds',
         projection= 'equirectangular',
-        labels= {'Confirmed':'Confirmed Cases'},
+        labels= {
+            'Confirmed':'Confirmed Cases',
+            'Deaths': 'Deaths'
+        },
         width = 700,
         height = 300
     )
@@ -137,13 +143,15 @@ def generate_map(chart_data):
         showframe=False,
         showcoastlines=False,
         projection_type='equirectangular'),
-        margin={"r":0,"t":20,"l":0,"b":0})            
+        margin={"r":0,"t":20,"l":0,"b":0}
+    )            
 
     return fig
 
 def load_daily_data():
     """
-    Reads in data for COVID daily observations
+    Read in data for COVID daily observations
+
     Parameters
     ----------
     None
@@ -151,13 +159,14 @@ def load_daily_data():
     Returns
     -------
     dataframe
-        data for COVID daily observations
+        Data for COVID daily observations for all countries
     """
     return pd.read_csv(os.path.join('data', 'raw', 'full_grouped.csv'))
 
 def load_population_data():
     """
-    Reads in data for countries and populations
+    Read in data for countries and populations
+    
     Parameters
     ----------
     None
@@ -165,14 +174,15 @@ def load_population_data():
     Returns
     -------
     dataframe
-        data for countries and populations
+        Data for countries and their population
     """
     return  pd.read_csv(os.path.join('data', 'processed', 'worldometer_data.csv'),
         usecols = ['Country/Region','Population'])
 
 def load_country_code_data():
     """
-    Reads in data for countries and populations
+    Read in data for countries and their locations
+   
     Parameters
     ----------
     None
@@ -180,7 +190,7 @@ def load_country_code_data():
     Returns
     -------
     gdf
-        mapped dataframe 
+        Data for countries and their locations
     """
     name_conversion = {
         'East Timor': 'Timor-Leste',
@@ -200,39 +210,43 @@ def load_country_code_data():
     gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
     gdf.columns = ['country', 'country_code', 'geometry']
 
+    # if a country name is in the above dict, replace the name in gdf with the value
+    # of that key.
     gdf.loc[gdf['country'].isin(name_conversion.keys()), 'country'] = gdf['country'].map(name_conversion)
 
     return gdf
 
 def join_population_data(daily_data, population_data):
     """
-    Merges daily_data and population_data dataframes
+    Merge daily_data and population_data dataframes
+
     Parameters
     ----------
     daily_data : df 
-        dataframe of daily observation
+        A dataframe of daily observation
     population_data : df 
-        dataframe of population    
+        A dataframe of population    
     Returns
     -------
     merged df
-        merged dataframe from daily_data and population_data
+        A merged dataframe from daily_data and population_data
     """
     return daily_data.merge(population_data, how = 'left', on = 'Country/Region')
 
 def join_country_code_data(daily_data, country_code_data):
     """
-    Merges daily_data and country_code_data dataframes
+    Merge daily_data and country_code_data dataframes
+
     Parameters
     ----------
     daily_data : df 
-        dataframe of daily observation
+        A dataframe of daily observations
     country_code_data : df 
-        dataframe of country codes    
+        A dataframe of country codes    
     Returns
     -------
     merged df
-        merged dataframe from daily_data and country_code_data
+        A merged dataframe from daily_data and country_code_data
     """
     #new columns: country, country_code, geometry
     return country_code_data.merge(daily_data, left_on = 'country', right_on = 'Country/Region').drop(['country'], axis=1)
@@ -254,23 +268,28 @@ metrics = {
     'WHO Region': 'first'
 }
 
+# Load all data from files
 month_data = load_daily_data()
 population_data = load_population_data()
 country_code_data = load_country_code_data()
 
+# Combine daily data with population & locations
 countries_daywise_df = join_population_data(month_data, population_data)
 countries_daywise_df = join_country_code_data(countries_daywise_df, country_code_data)
 
+# Aggregate for World & Continents level. Will be used in line charts / the map.
 continents_daywise_df = calculate_continent_daywise(countries_daywise_df)
 world_daywise_df = calculate_world_daywise(countries_daywise_df)
 
+# Find unique values for countries / continents to put in the dropdown list
+# sorted in the alphabetical order
 countries = list(set(countries_daywise_df['Country/Region'].tolist()))
 continents = list(set(countries_daywise_df['WHO Region'].tolist()))
 countries.sort()
 continents.sort()
 
 date_range_selection = html.Label([
-    'Date range selection',
+    'Date Range Selection',
     dcc.DatePickerRange(
         id='date_selection_range',
         min_date_allowed=date(2020, 1, 22),
@@ -294,7 +313,7 @@ options_selection = html.Label([
         value='Absolute',
         labelStyle={'margin-right': '25px'},
         inputStyle={'margin-right': '5px'}
-    ) # default option is absolute
+    )
 ])
 
 region_selection = html.Label([
@@ -329,17 +348,17 @@ country_filter =  dcc.Dropdown(
 
 total_cases_linechart = html.Iframe(
     id='line_totalcases',
-    style={'border-width': '0', 'width': '100%', 'height': '300px'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px'}
 )
 
 total_death_linechart = html.Iframe(
     id='line_totaldeaths',
-    style={'border-width': '0', 'width': '100%', 'height': '300px'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px'}
 )
 
 total_recovered_linechart = html.Iframe(
     id='line_totalrecovered',
-    style={'border-width': '0', 'width': '100%', 'height': '300px'}
+    style={'border-width': '0', 'width': '100%', 'height': '400px'}
 )
 
 map = dcc.Graph(
@@ -414,32 +433,35 @@ app.layout = dbc.Container([
     Input('select_options', 'value'))
 def filter_plot(mode, country, continent, start_date, end_date, options):
     """
-    Plots interactive line charts and world map based on filtering features
+    Plot interactive line charts and world map based on filtering features
+
     Parameters
     ----------
     mode : str 
-        mode to filter the plots/map (default is World mode)
+        A mode to filter the plots/map (default is World mode)
     country : str
-        country to filter the plots/map
+        A country to filter the plots/map
     continent : str
-        continent to filter the plots/map
+        A continent to filter the plots/map
     start_date : datetime
-        starting date to filter the plots/map
+        A starting date to filter the plots/map
     end_date : datetime
-        ending date to filter the plots/map
+        An ending date to filter the plots/map
     options : str 
-        option to filter the plots/map 
+        An option to filter the plots/map 
     Returns
     -------
     plots & map
-        filtered plots and map based on filtering features 
+        Filtered plots and map based on filtering features 
     """
     # Default is World mode
+    # We only use daily countries data for map
+    # as it does not understand which countries to display
     chart_data = world_daywise_df
     map_data = countries_daywise_df
-    print(country, continent)
+
     if mode == SelectionMode.Continents.value:
-        #Continents mode
+        # Continents mode
         if not isinstance(continent, list):
             continent = [continent]
 
@@ -456,7 +478,7 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
     chart_data = chart_data.query('Date >= @start_date & Date <= @end_date')
     map_data = map_data.query('Date >= @start_date & Date <= @end_date')
 
-    # fix error when groupby geometry or put it in the aggregate column
+    # fix the error when groupby geometry or put it in the aggregate column
     temp = map_data.drop(['geometry', 'country_code', 'Date'], axis=1).groupby(['Country/Region']).agg(metrics).reset_index()
     map_data = join_country_code_data(temp, country_code_data)
 
@@ -478,30 +500,29 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
 
 def plot(chart_data, metric, metric_name):
     """
-    Plots an interactive line chart with the time period on the x axis and selected metric on the y axis
+    Plot an interactive line chart with the time period on the x axis and a selected metric on the y axis
+
     Parameters
     ----------
     chart_data : df 
-        dataframe being plotted
+        A dataframe being plotted
     metric : str
-        metric being examined as specifed in the metrics dictionary
+        A metric being examined as specifed in the metrics dictionary
     metric_name : str
-        title of plot that should be outputted
+        A title of the plot that should be outputted
     Returns
     -------
     plot
-        a line plot with single or multiple lines depending on dataframe selection 
+        A line chart with a single or multiple lines depending on dataframe selection 
     """
     chart = (alt.Chart(chart_data).mark_line().encode(
-        x=alt.X('month(Date):T', title="Month"),
+        x=alt.X('month(Date):T', title='Month'),
         y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}', axis=alt.Axis(tickCount=5)),
         color=alt.Color('Country/Region', title='Region'))
         .properties(title=[f'{metric_name} Over Time'], width=180, height=180))
  
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
-# will display / show the dropdown list for continents / countries based
-# on whether the user selects World / Continents or Countries
 @app.callback(
     Output('blank_div', 'style'),
     Output('continent_filter', 'style'),
@@ -509,16 +530,18 @@ def plot(chart_data, metric, metric_name):
     Input('region_selection', 'value'))
 def get_region_dropdown(mode):
     """
-    Returns dropdown menu values
+    Display / show the dropdown list for continents / countries based
+    on whether the user selects World / Continents or Countries mode
+    
     Parameters
     ----------
     mode : str
-        mode to filter the plots/map (default is World mode)
+        A mode to filter the plots/map (default is World mode)
     Returns
     -------
-    dropdown valuess
+    tuple
+        The display modes for (World, Continents, Countries dropdown list)
     """
-    print(mode)
     if mode == SelectionMode.Continents.value:
         return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
     elif mode == SelectionMode.Countries.value:
