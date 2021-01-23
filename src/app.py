@@ -53,14 +53,14 @@ def calculate_world_statistics(countries_df, group_col):
 
 def generate_map(chart_data):
     fig = px.choropleth(chart_data, locations="country_code",
-                    color="Confirmed",
-                    hover_name="Country/Region",
-                    color_continuous_scale='Reds',
-                    projection= 'equirectangular',
-                    labels= {'Confirmed':'Confirmed Cases'},
-                    width = 700,
-                    height = 300
-                    )
+        color="Confirmed",
+        hover_name="Country/Region",
+        color_continuous_scale='Reds',
+        projection= 'equirectangular',
+        labels= {'Confirmed':'Confirmed Cases'},
+        width = 700,
+        height = 300
+    )
     
     fig.update_layout(
         geo=dict(
@@ -194,7 +194,8 @@ country_filter =  dcc.Dropdown(
     id='country_filter',
     value='Afghanistan',
     options=[{'label': country, 'value': country} for country in countries],
-    multi=True
+    multi=True,
+    style={'height': '15px', 'display': 'inline-block'}
 )
 
 total_cases_linechart = html.Iframe(
@@ -314,16 +315,15 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
             chart_data[metric + '_per_capita'] = chart_data[metric] / chart_data['Population']
             map_data[metric + '_per_capita'] = map_data[metric] / map_data['Population']
             
-    if is_perCapita(options):
         return plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), \
                 plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'), \
                 plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'), \
                 generate_map(map_data)
 
     return plot(chart_data, 'Confirmed', 'Confirmed Cases'), \
-            plot(chart_data, 'Deaths', 'Confirmed Deaths'), \
-            plot(chart_data, 'Recovered', 'Confirmed Recoveries'), \
-            generate_map(map_data)
+        plot(chart_data, 'Deaths', 'Confirmed Deaths'), \
+        plot(chart_data, 'Recovered', 'Confirmed Recoveries'), \
+        generate_map(map_data)
 
 
 def plot(chart_data, metric, metric_name):
