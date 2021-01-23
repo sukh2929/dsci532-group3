@@ -530,7 +530,7 @@ def plot(chart_data, metric, metric_name, show_legend=False):
         .properties(title=[f'{metric_name} Over Time'], width=240, height=180)
     )
  
-    return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
+    return (chart + chart.mark_point()).configure_legend(columns=2).interactive(bind_x=True).to_html()
 
 @app.callback(
     Output('blank_div', 'style'),
