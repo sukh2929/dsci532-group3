@@ -496,8 +496,8 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
             map_data[metric + '_per_capita'] = map_data[metric] / map_data['Population']
             
         return plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), \
-                plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'), \
-                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita', True), \
+                plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita', True), \
+                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'), \
                 generate_map(map_data, 'Confirmed_per_capita', {'Confirmed_per_capita':'Confirmed Cases Per Capita'})
 
     return plot(chart_data, 'Confirmed', 'Confirmed Cases'), \
