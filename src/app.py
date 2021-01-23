@@ -583,8 +583,13 @@ def get_region_dropdown(mode):
     Input('date_selection_range', 'start_date'),
     Input('date_selection_range', 'end_date'),
     Input('select_options', 'value'))
-def create_loading_screen(region, country, continent, start_date, end_date, option):
-    time.sleep(1)
+def create_loading_screen(mode, country, continent, start_date, end_date, option):
+    time_to_sleep = 1
+
+    if mode == SelectionMode.Countries.value:
+        time_to_sleep = 5
+
+    time.sleep(time_to_sleep)
     
     return ''
 
