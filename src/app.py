@@ -17,7 +17,7 @@ import plotly.express as px
 from enum import Enum
 class SelectionMode(Enum):
     World = 1
-    Continents = 2
+    Regions = 2
     Countries = 3
 
 def is_perCapita(key):
@@ -461,7 +461,7 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
     chart_data = world_daywise_df
     map_data = countries_daywise_df
 
-    if mode == SelectionMode.Continents.value:
+    if mode == SelectionMode.Regions.value:
         # Continents mode
         if not isinstance(continent, list):
             continent = [continent]
@@ -551,7 +551,7 @@ def get_region_dropdown(mode):
     tuple
         The display modes for (World, Continents, Countries dropdown list)
     """
-    if mode == SelectionMode.Continents.value:
+    if mode == SelectionMode.Regions.value:
         return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
     elif mode == SelectionMode.Countries.value:
         return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
