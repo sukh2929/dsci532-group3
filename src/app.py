@@ -252,6 +252,7 @@ def join_country_code_data(daily_data, country_code_data):
     return country_code_data.merge(daily_data, left_on = 'country', right_on = 'Country/Region').drop(['country'], axis=1)
 
 alt.data_transformers.disable_max_rows()
+alt.renderers.set_embed_options(actions=False)
 
 prev_vals = {'country': None, 'continent': None}
 drop_cols = ['Country/Region', 'Population', 'country_code', 'geometry']
@@ -398,7 +399,7 @@ app.layout = dbc.Container([
                     options_selection
                 ])
             ])],
-            md=4),
+            lg=4),
         dbc.Col([  
             dbc.Col([
                 map
@@ -489,16 +490,16 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
             
         return plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), \
                 plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita'), \
-                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'), \
+                plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita', True), \
                 generate_map(map_data)
 
     return plot(chart_data, 'Confirmed', 'Confirmed Cases'), \
-        plot(chart_data, 'Deaths', 'Confirmed Deaths'), \
+        plot(chart_data, 'Deaths', 'Confirmed Deaths', True), \
         plot(chart_data, 'Recovered', 'Confirmed Recoveries'), \
         generate_map(map_data)
 
 
-def plot(chart_data, metric, metric_name):
+def plot(chart_data, metric, metric_name, show_legend=False):
     """
     Plot an interactive line chart with the time period on the x axis and a selected metric on the y axis
 
@@ -510,16 +511,24 @@ def plot(chart_data, metric, metric_name):
         A metric being examined as specifed in the metrics dictionary
     metric_name : str
         A title of the plot that should be outputted
+    show_legend: bool
+        A value to determine if the chart should have legend
     Returns
     -------
     plot
         A line chart with a single or multiple lines depending on dataframe selection 
     """
+    if show_legend:
+        legend = alt.Legend(orient='bottom')
+    else:
+        legend = None
+
     chart = (alt.Chart(chart_data).mark_line().encode(
         x=alt.X('month(Date):T', title='Month'),
         y=alt.Y(f'mean({metric}):Q', title=f'Average {metric_name}', axis=alt.Axis(tickCount=5)),
-        color=alt.Color('Country/Region', title='Region'))
-        .properties(title=[f'{metric_name} Over Time'], width=180, height=180))
+        color=alt.Color('Country/Region', title='Region', legend=legend))
+        .properties(title=[f'{metric_name} Over Time'], width=250, height=180)
+    )
  
     return (chart + chart.mark_point()).interactive(bind_x=True).to_html()
 
