@@ -27,13 +27,13 @@ def is_perCapita(key):
 
     Parameters
     ----------
-    key : str 
+    key : str
         value of option selectected (absolute or per capita)
 
     Returns
     -------
     boolean
-        True if key is "Per Capita", else False 
+        True if key is "Per Capita", else False
     """
     return key == "Per Capita"
 
@@ -43,7 +43,7 @@ def calculate_continent_daywise(countries_daywise_df):
 
     Parameters
     ----------
-    countries_daywise_df : df 
+    countries_daywise_df : df
         A dataframe of daily observations for all countries
 
     Returns
@@ -60,9 +60,9 @@ def calculate_continent_statistics(countries_df, group_col):
 
     Parameters
     ----------
-    countries_df : df 
+    countries_df : df
         A dataframe of countries
-    group_col : str 
+    group_col : str
         The column to group the data
 
     Returns
@@ -82,7 +82,7 @@ def calculate_world_daywise(countries_daywise_df):
 
     Parameters
     ----------
-    countries_daywise_df : df 
+    countries_daywise_df : df
         A dataframe of daily observations
 
     Returns
@@ -99,9 +99,9 @@ def calculate_world_statistics(countries_df, group_col):
 
     Parameters
     ----------
-    countries_df : df 
+    countries_df : df
         A dataframe of countries
-    group_col : str 
+    group_col : str
         The column to group the data
 
     Returns
@@ -122,7 +122,7 @@ def generate_map(chart_data, metric='Confirmed', labels=None):
 
     Parameters
     ----------
-    chart_data : df 
+    chart_data : df
         A dataframe of filtered data to plot
     metric: str, default to 'Confirmed'
         A metric that we want to display
@@ -145,14 +145,14 @@ def generate_map(chart_data, metric='Confirmed', labels=None):
         width = 700,
         height = 300
     )
-    
+
     fig.update_layout(
         geo=dict(
         showframe=False,
         showcoastlines=False,
         projection_type='equirectangular'),
         margin={"r":0,"t":20,"l":0,"b":0}
-    )            
+    )
 
     return fig
 
@@ -174,7 +174,7 @@ def load_daily_data():
 def load_population_data():
     """
     Read in data for countries and populations
-    
+
     Parameters
     ----------
     None
@@ -190,7 +190,7 @@ def load_population_data():
 def load_country_code_data():
     """
     Read in data for countries and their locations
-   
+
     Parameters
     ----------
     None
@@ -230,10 +230,10 @@ def join_population_data(daily_data, population_data):
 
     Parameters
     ----------
-    daily_data : df 
+    daily_data : df
         A dataframe of daily observation
-    population_data : df 
-        A dataframe of population    
+    population_data : df
+        A dataframe of population
     Returns
     -------
     merged df
@@ -247,10 +247,10 @@ def join_country_code_data(daily_data, country_code_data):
 
     Parameters
     ----------
-    daily_data : df 
+    daily_data : df
         A dataframe of daily observations
-    country_code_data : df 
-        A dataframe of country codes    
+    country_code_data : df
+        A dataframe of country codes
     Returns
     -------
     merged df
@@ -382,7 +382,7 @@ loading = html.Div(
     ),
     style={'height': '1px', 'width': '1920px'}
 )
-                                
+
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
@@ -416,14 +416,14 @@ app.layout = dbc.Container([
                 ])
             ])],
             lg=4),
-        dbc.Col([  
+        dbc.Col([
             dbc.Col([
                 map
             ])
         ])
     ]),
     dbc.Row([loading]),
-    dbc.Row([     
+    dbc.Row([
         dbc.Col([
             total_cases_linechart
         ]),
@@ -434,8 +434,8 @@ app.layout = dbc.Container([
             total_recovered_linechart
         ])
     ])
-])      
-        
+])
+
 
 # Set up callbacks/backend
 @app.callback(
@@ -455,7 +455,7 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
 
     Parameters
     ----------
-    mode : str 
+    mode : str
         A mode to filter the plots/map (default is World mode)
     country : str
         A country to filter the plots/map
@@ -465,12 +465,12 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
         A starting date to filter the plots/map
     end_date : datetime
         An ending date to filter the plots/map
-    options : str 
-        An option to filter the plots/map 
+    options : str
+        An option to filter the plots/map
     Returns
     -------
     plots & map
-        Filtered plots and map based on filtering features 
+        Filtered plots and map based on filtering features
     """
     # Default is World mode
     # We only use daily countries data for map
@@ -504,7 +504,7 @@ def filter_plot(mode, country, continent, start_date, end_date, options):
         for metric in ['Confirmed', 'Deaths', 'Recovered']:
             chart_data[metric + '_per_capita'] = chart_data[metric] / chart_data['Population']
             map_data[metric + '_per_capita'] = map_data[metric] / map_data['Population']
-            
+
         return plot(chart_data, 'Confirmed_per_capita', 'Confirmed Cases Per Capita'), \
                 plot(chart_data, 'Deaths_per_capita', 'Confirmed Deaths Per Capita', True), \
                 plot(chart_data, 'Recovered_per_capita', 'Confirmed Recoveries Per Capita'), \
@@ -522,7 +522,7 @@ def plot(chart_data, metric, metric_name, show_legend=False):
 
     Parameters
     ----------
-    chart_data : df 
+    chart_data : df
         A dataframe being plotted
     metric : str
         A metric being examined as specifed in the metrics dictionary
@@ -533,7 +533,7 @@ def plot(chart_data, metric, metric_name, show_legend=False):
     Returns
     -------
     plot
-        A line chart with a single or multiple lines depending on dataframe selection 
+        A line chart with a single or multiple lines depending on dataframe selection
     """
     if show_legend:
         legend = alt.Legend(orient='bottom')
@@ -546,7 +546,7 @@ def plot(chart_data, metric, metric_name, show_legend=False):
         color=alt.Color('Country/Region', title='Region', legend=legend))
         .properties(title=[f'{metric_name} Over Time'], width=240, height=180)
     )
- 
+
     return (chart + chart.mark_point()).configure_legend(columns=2).interactive(bind_x=True).to_html()
 
 @app.callback(
@@ -558,7 +558,7 @@ def get_region_dropdown(mode):
     """
     Display / show the dropdown list for continents / countries based
     on whether the user selects World / Continents or Countries mode
-    
+
     Parameters
     ----------
     mode : str
@@ -572,7 +572,7 @@ def get_region_dropdown(mode):
         return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
     elif mode == SelectionMode.Countries.value:
         return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
-    
+
     return {'height': '35px'}, {'display': 'none'}, {'display': 'none'}
 
 @app.callback(
@@ -590,7 +590,7 @@ def create_loading_screen(mode, country, continent, start_date, end_date, option
         time_to_sleep = 5
 
     time.sleep(time_to_sleep)
-    
+
     return ''
 
 if __name__ == '__main__':
