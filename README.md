@@ -4,7 +4,7 @@ Team Members: Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, Heidi Ye
 
 Dataset: COVID-19 [Dataset](https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv)
 
-App: [COVID-19 Dashboard](https://covid-19-mds-532-group3.herokuapp.com/)
+App: COVID-19 [Dashboard](https://covid-19-mds-532-group3.herokuapp.com/)
 
 ## Welcome!
 Hello and welcome to our COVID-19 Dashboard - an interactive app that allows users to explore COVID-19 confirmed cases, deaths and recoveries around the world. 
