@@ -1,4 +1,5 @@
 import os
+import time
 
 import dash
 import dash_html_components as html
@@ -373,6 +374,14 @@ map = dcc.Graph(
     id='world_map',
     figure=generate_map(countries_daywise_df)
 )
+
+loading = html.Div(
+    dcc.Loading(
+        id='loading',
+        type='circle'
+    ),
+    style={'height': '1px', 'width': '1920px'}
+)
                                 
 # Setup app and layout/frontend
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -413,6 +422,7 @@ app.layout = dbc.Container([
             ])
         ])
     ]),
+    dbc.Row([loading]),
     dbc.Row([     
         dbc.Col([
             total_cases_linechart
@@ -565,6 +575,18 @@ def get_region_dropdown(mode):
     
     return {'height': '35px'}, {'display': 'none'}, {'display': 'none'}
 
+@app.callback(
+    Output('loading', 'children'),
+    Input('region_selection', 'value'),
+    Input('country_filter', 'value'),
+    Input('continent_filter', 'value'),
+    Input('date_selection_range', 'start_date'),
+    Input('date_selection_range', 'end_date'),
+    Input('select_options', 'value'))
+def create_loading_screen(region, country, continent, start_date, end_date, option):
+    time.sleep(1)
+    
+    return ''
 
 if __name__ == '__main__':
     app.run_server(debug=True)
