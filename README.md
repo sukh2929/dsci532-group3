@@ -4,12 +4,12 @@ Team Members: Sukhdeep Kaur, Arash Shamseddini, Tran Doan Khanh Vu, Heidi Ye
 
 Dataset: COVID-19 [Dataset](https://www.kaggle.com/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv)
 
-App: Need to add final link here.
+App: [COVID-19 Dashboard](https://covid-19-mds-532-group3.herokuapp.com/)
 
 ## Welcome!
 Hello and welcome to our COVID-19 Dashboard - an interactive app that allows users to explore COVID-19 confirmed cases, deaths and recoveries around the world. 
 
-As the pandemic continues into 2021, the intent of this app is to allow users to examine the first seven months of 2020 to visualize how the pandemic progressed in the early stages. Users can view this data both on a global scale as well as on an continent or country by country basis. The app also allows users to compare countries or continents across time periods to understand how different lockdown measures may have impacted these key measures.
+As the pandemic continues into 2021, the intent of this app is to allow users to examine the first seven months of 2020 to visualize how the pandemic progressed in the early stages. Users can view this data both on a global scale as well as on a region or country basis. The app also allows users to compare countries or regions across time periods to understand how different lockdown measures may have impacted these key measures.
 
 ### App Sketch
 
@@ -27,7 +27,14 @@ The intent of this app is for users to be able to explore both global trends as 
 
 ## Get Involved
 
-We are always looking for feedback and contributors! The next feature we are hoping to build is a second tab with all the features outlined in the app sketch image directly above. You can run the app locally and contribute by:
+We are always looking for feedback and contributors! 
+
+In second milestone, the main comparison functionality of the "Region" tab was incorporated into landing page to limit the scope of having to build two tabs. Potential functionality to add for the future include:
+
+- ability to select countries on the map by clicking as a more intuitive alternative than typing in the country field
+- exploring ways to speed up the page load time (loading widget currently implemented)
+
+The next feature we are hoping to build is a second tab with all the features outlined in the app sketch image directly above. You can run the app locally and contribute by:
 1. Forking this repo
 2. Downloading the environment in the `environment.yaml` file
 3. Adding your improvements to the `app.py` file in the `src` folder
