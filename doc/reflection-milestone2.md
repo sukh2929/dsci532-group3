@@ -12,13 +12,11 @@ The output data are represented in from of interactive line charts for total num
 
 We are and will be constantly striving to improve our application. In this vein, we are also determined to make the best use of the feedback that has been received on our progress and aim to implement certain features/improvements for the coming milestones of the project. Some of which are: 
 
--	Adding versatility to the **Date range selection** option so that it allows for selection of monthly data as well and modify the line charts design accordingly. 
+- Adding versatility to the **Date range selection** option so that it allows for selection of monthly data as well and modify the line charts design accordingly. 
 
 - Adding versatility to the **Selection Mode** option (World, Regions and Countries) so that it has enough space to show multiple selections (e.g. using a scrollbar feature).
 
-- Adding versatility to the **Display Data** option so that moving between **Absolute** and **Per Capita** mode would also change the map. 
-
--	Adding a clickability option to the map. This feature helps user(s) with selecting the country of interest and bypass browsing a long list of countries. We tend to consider this as an optional feature to be added to our application in case time allows.
+- Adding a clickability option to the map. This feature helps user(s) with selecting the country of interest and bypass browsing a long list of countries. We tend to consider this as an optional feature to be added to our application in case time allows.
 
 Just as the final note and making reference to a feedback from TA facing small delays in filtering functionality of our dashboard, we would like to acknowledge the fact that it is our understanding that although our dataset is considered as **Big** dataset, these technical glitches are typical of a low-memory server such as **Heroku** and will not be experienced with  better servers. 
 
