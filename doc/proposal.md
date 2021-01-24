@@ -31,10 +31,10 @@ Dr. Jerry Bing is an Epidemiologist. Every day he is tasked to report his sugges
 
 ## App Sketch
 
-The purpose of this app is to allow users to explore global COVID-19 data by time and region in an intuitive manner. The app sketch can be found below with additional details in the [README](README.md).
+The purpose of this app is to allow users to explore global COVID-19 data by time and region in an intuitive manner. The app sketch can be found below with additional details in the [README](../README.md).
 
 
-![Slide1_annotated.png](images/Slide1_annotated.png)
+![Slide1_annotated.png](../images/Slide1_annotated.png)
 
 
-![Slide2_annotated.png](images/Slide2_annotated.png)
+![Slide2_annotated.png](../images/Slide2_annotated.png)
